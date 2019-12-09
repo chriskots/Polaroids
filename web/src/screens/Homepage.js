@@ -1,7 +1,8 @@
 import React from 'react';
+import TaskBar from '../components/TaskBar';
 
 export default function Homepage () {
     return (
-        <div>hi</div> 
+        <TaskBar />
     );
 }
