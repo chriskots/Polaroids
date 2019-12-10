@@ -1,6 +1,6 @@
-import React from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import Homepage from "./screens/Homepage";
+import React from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import Homepage from './screens/Homepage';
 // import MessagesPage from './screens/MessagesPage';
 // import ProfilePage from './screens/ProfilePage';
 
