@@ -97,6 +97,16 @@ export default function TaskBar() {
     }
   };
 
+  //This function is a handler for when the user clicks the messages option
+  const handleMessages = () => {
+    console.log('Open messages');
+  };
+
+  //This function is a handler for when the user clicks the notifications option
+  const handleNotifications = () => {
+    console.log('Open notifications');
+  };
+
   //This function is a handler for when the mobile menu is closed
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
@@ -118,6 +128,26 @@ export default function TaskBar() {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
+  //This function is a handler for when the user clicks the profile option
+  const handleProfile = () => {
+    console.log('Open profile');
+  };
+
+  //This function is a handler for when the user clicks the settings option
+  const handleSettings = () => {
+    console.log('Open settings');
+  };
+
+  //This function is a handler for when the user clicks the logoff option
+  const handleLogoff = () => {
+    console.log('Logoff');
+  };
+
+  //This function is a handler for when the user clicks the privacy / terms option
+  const handlePrivacyTerms = () => {
+    console.log('Open privacy / terms');
+  };
+
   const menuId = 'primary-search-account-menu';
   const renderMenu = () => {
     return (
@@ -130,10 +160,10 @@ export default function TaskBar() {
         open={isMenuOpen}
         onClose={handleMenuClose}
       >
-        <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-        <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
-        <MenuItem onClick={handleMenuClose}>Logoff</MenuItem>
-        <MenuItem onClick={handleMenuClose}>Privacy / Terms</MenuItem>
+        <MenuItem onClick={handleProfile}>Profile</MenuItem>
+        <MenuItem onClick={handleSettings}>Settings</MenuItem>
+        <MenuItem onClick={handleLogoff}>Logoff</MenuItem>
+        <MenuItem onClick={handlePrivacyTerms}>Privacy / Terms</MenuItem>
       </Menu>
     );
   };
@@ -150,7 +180,7 @@ export default function TaskBar() {
         open={isMobileMenuOpen}
         onClose={handleMobileMenuClose}
       >
-        <MenuItem>
+        <MenuItem onClick={handleMessages}>
           <IconButton aria-label="messages" color="inherit">
             <Badge badgeContent={4} color="secondary">
               <Chat />
@@ -158,7 +188,7 @@ export default function TaskBar() {
           </IconButton>
           <p>Messages</p>
         </MenuItem>
-        <MenuItem>
+        <MenuItem onClick={handleNotifications}>
           <IconButton aria-label="notifications" color="inherit">
             <Badge badgeContent={11} color="secondary">
               <Notifications />
@@ -175,7 +205,7 @@ export default function TaskBar() {
           >
             <AccountCircle />
           </IconButton>
-          <p>Profile</p>
+          <p>Name</p>
         </MenuItem>
       </Menu>
     );
@@ -187,9 +217,7 @@ export default function TaskBar() {
         <Toolbar className={classes.flexCenter}>
           <Button
             type="submit"
-            onClick={() => {
-              handleGoToTop();
-            }}
+            onClick={handleGoToTop}
             className={classes.homeButton}
           >
             Polaroids
@@ -209,16 +237,24 @@ export default function TaskBar() {
               onChange={event => {
                 setSearchInput(event.target.value);
               }}
-              onKeyPress={event => handleSearch(event)}
+              onKeyPress={handleSearch}
             />
           </div>
           <div className={classes.sectionDesktop}>
-            <IconButton aria-label="messages" color="inherit">
+            <IconButton
+              aria-label="messages"
+              color="inherit"
+              onClick={handleMessages}
+            >
               <Badge badgeContent={4} color="secondary">
                 <Chat />
               </Badge>
             </IconButton>
-            <IconButton aria-label="notifications" color="inherit">
+            <IconButton
+              aria-label="notifications"
+              color="inherit"
+              onClick={handleNotifications}
+            >
               <Badge badgeContent={17} color="secondary">
                 <Notifications />
               </Badge>
