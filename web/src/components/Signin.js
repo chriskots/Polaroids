@@ -8,7 +8,7 @@ import {
   DialogContentText,
   DialogTitle
 } from '@material-ui/core';
-import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({
@@ -28,6 +28,9 @@ const useStyles = makeStyles(theme => ({
   },
   spacing: {
     padding: '10px'
+  },
+  passwordSpacing: {
+    margin: theme.spacing(1)
   }
 }));
 
@@ -58,6 +61,7 @@ export default function Signin() {
   //Login input variables
   const [usernameInput, setUsernameInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
+  const [redirect, setRedirect] = useState(false);
   //Forget password variables
   const [emailForgetPassword, setEmailForgetPassword] = useState('');
   const [openForgetPassword, setOpenForgetPassword] = useState(false);
@@ -73,52 +77,70 @@ export default function Signin() {
 
   //This function is a handler for when the user clicks the login button to use the login functionality
   const handleLogin = () => {
-    console.log(
-      'login and go to /home here pass props',
-      usernameInput,
-      'and',
-      passwordInput
-    );
+    setRedirect(true);
   };
 
   //This function is a handler for when the user clicks the enter key to use the login functionality
   const handleLoginEnterKey = event => {
     if (event.key === 'Enter') {
+      setRedirect(true);
+    }
+  };
+
+  //This function is a renderer that will change the route to /home when the user logs in
+  const renderRedirect = () => {
+    if (redirect) {
       console.log(
         'login and go to /home here pass props',
         usernameInput,
         'and',
         passwordInput
       );
+      return (
+        <Redirect
+          push
+          to={{
+            pathname: '/home',
+            state: { username: usernameInput, password: passwordInput }
+          }}
+        />
+      );
     }
   };
 
+  //This function is a handler for when the forget password dialog is opened
   const handleForgetPasswordOpen = () => {
     setOpenForgetPassword(true);
   };
 
+  //This function is a handler for when the forget password dialog is closed
   const handleForgetPasswordClose = () => {
     setOpenForgetPassword(false);
   };
 
+  //This function is a handler for when the forget password button is clicked
   const handleForgetPassword = () => {
     console.log('forget password with', emailForgetPassword);
   };
 
+  //This function is a handler for when the enter key is pressed when entering the forget password
   const handleForgetPasswordEnterKey = event => {
     if (event.key === 'Enter') {
       console.log('forget password with', emailForgetPassword);
     }
   };
 
+  //This function is a handler for when the create new account is opened
   const handleCreateNewAccountOpen = () => {
     setOpenCreateNewAccount(true);
   };
 
+  //This function is a handler for when the create new account is closed
   const handleCreateNewAccountClose = () => {
     setOpenCreateNewAccount(false);
   };
 
+  //This function is a handler for when the create new account button is pressed
   const handleCreateNewAccount = () => {
     console.log(
       'create new account with',
@@ -129,6 +151,7 @@ export default function Signin() {
     );
   };
 
+  //This function is a handler for when the user clicks the enter key to create a new account
   const handleCreateNewAccountEnterKey = event => {
     if (event.key === 'Enter') {
       console.log(
@@ -145,7 +168,7 @@ export default function Signin() {
     <div className={classes.login}>
       <div className={classes.spacing}>
         <CssTextField
-          id="username"
+          id="login username"
           label="Username"
           value={usernameInput}
           onChange={event => {
@@ -156,7 +179,7 @@ export default function Signin() {
       </div>
       <div className={classes.spacing}>
         <CssTextField
-          id="password"
+          id="login password"
           label="Password"
           type="password"
           value={passwordInput}
@@ -168,9 +191,7 @@ export default function Signin() {
       </div>
       <div className={classes.spacing}>
         <Button className={classes.loginButton} onClick={handleLogin}>
-          <Link to="/home" className={classes.loginButton}>
-            Login
-          </Link>
+          Login
         </Button>
       </div>
       <div className={classes.spacing}>
@@ -183,7 +204,7 @@ export default function Signin() {
               changing your password
             </DialogContentText>
             <CssTextField
-              id="email"
+              id="forget password email"
               label="Email"
               fullWidth
               value={emailForgetPassword}
@@ -222,7 +243,7 @@ export default function Signin() {
             </DialogContentText>
             <div className={classes.spacing}>
               <CssTextField
-                id="email"
+                id="create new account email"
                 label="Email"
                 fullWidth
                 value={emailCreateNewAccount}
@@ -234,7 +255,7 @@ export default function Signin() {
             </div>
             <div className={classes.spacing}>
               <CssTextField
-                id="username"
+                id="create new account username"
                 label="Username"
                 fullWidth
                 value={usernameCreateNewAccount}
@@ -244,10 +265,11 @@ export default function Signin() {
                 onKeyPress={handleCreateNewAccountEnterKey}
               ></CssTextField>
             </div>
-            <div className={classes.spacing}>
+            <div className={classes.passwordSpacing}>
               <CssTextField
-                id="password"
+                id="create new account password"
                 label="Password"
+                type="password"
                 value={passwordCreateNewAccount}
                 onChange={event => {
                   setPasswordCreateNewAccount(event.target.value);
@@ -255,8 +277,9 @@ export default function Signin() {
                 onKeyPress={handleCreateNewAccountEnterKey}
               ></CssTextField>
               <CssTextField
-                id="confirm password"
+                id="create new account confirm password"
                 label="Confirm Password"
+                type="password"
                 value={confirmPasswordCreateNewAccount}
                 onChange={event => {
                   setConfirmPasswordCreateNewAccount(event.target.value);
@@ -270,11 +293,12 @@ export default function Signin() {
               className={classes.loginButton}
               onClick={handleCreateNewAccount}
             >
-              Submit
+              Sign Up
             </Button>
           </DialogActions>
         </Dialog>
       </div>
+      {renderRedirect()}
     </div>
   );
 }
