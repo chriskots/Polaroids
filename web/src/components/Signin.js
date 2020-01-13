@@ -62,9 +62,9 @@ export default function Signin() {
   const [usernameInput, setUsernameInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [redirect, setRedirect] = useState(false);
-  //Forget password variables
-  const [emailForgetPassword, setEmailForgetPassword] = useState('');
-  const [openForgetPassword, setOpenForgetPassword] = useState(false);
+  //Forgot password variables
+  const [emailForgotPassword, setemailForgotPassword] = useState('');
+  const [openForgotPassword, setOpenForgotPassword] = useState(false);
   //Create new account variables
   const [emailCreateNewAccount, setEmailCreateNewAccount] = useState('');
   const [usernameCreateNewAccount, setUsernameCreateNewAccount] = useState('');
@@ -108,25 +108,25 @@ export default function Signin() {
     }
   };
 
-  //This function is a handler for when the forget password dialog is opened
-  const handleForgetPasswordOpen = () => {
-    setOpenForgetPassword(true);
+  //This function is a handler for when the forgot password dialog is opened
+  const handleForgotPasswordOpen = () => {
+    setOpenForgotPassword(true);
   };
 
-  //This function is a handler for when the forget password dialog is closed
-  const handleForgetPasswordClose = () => {
-    setOpenForgetPassword(false);
+  //This function is a handler for when the forgot password dialog is closed
+  const handleForgotPasswordClose = () => {
+    setOpenForgotPassword(false);
   };
 
-  //This function is a handler for when the forget password button is clicked
-  const handleForgetPassword = () => {
-    console.log('forget password with', emailForgetPassword);
+  //This function is a handler for when the forgot password button is clicked
+  const handleForgotPassword = () => {
+    console.log('forgot password with', emailForgotPassword);
   };
 
-  //This function is a handler for when the enter key is pressed when entering the forget password
-  const handleForgetPasswordEnterKey = event => {
+  //This function is a handler for when the enter key is pressed when entering the forgot password
+  const handleForgotPasswordEnterKey = event => {
     if (event.key === 'Enter') {
-      console.log('forget password with', emailForgetPassword);
+      console.log('forgot password with', emailForgotPassword);
     }
   };
 
@@ -195,29 +195,29 @@ export default function Signin() {
         </Button>
       </div>
       <div className={classes.spacing}>
-        <Button onClick={handleForgetPasswordOpen}>Forget Password</Button>
-        <Dialog open={openForgetPassword} onClose={handleForgetPasswordClose}>
-          <DialogTitle>Forget Password</DialogTitle>
+        <Button onClick={handleForgotPasswordOpen}>Forgot Password</Button>
+        <Dialog open={openForgotPassword} onClose={handleForgotPasswordClose}>
+          <DialogTitle>Forgot Password</DialogTitle>
           <DialogContent>
             <DialogContentText>
               Please enter your email and we will begin with the process of
               changing your password
             </DialogContentText>
             <CssTextField
-              id="forget password email"
+              id="forgot password email"
               label="Email"
               fullWidth
-              value={emailForgetPassword}
+              value={emailForgotPassword}
               onChange={event => {
-                setEmailForgetPassword(event.target.value);
+                setemailForgotPassword(event.target.value);
               }}
-              onKeyPress={handleForgetPasswordEnterKey}
+              onKeyPress={handleForgotPasswordEnterKey}
             ></CssTextField>
           </DialogContent>
           <DialogActions>
             <Button
               className={classes.loginButton}
-              onClick={handleForgetPassword}
+              onClick={handleForgotPassword}
             >
               Submit
             </Button>
