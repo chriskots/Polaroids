@@ -72,9 +72,16 @@ function Signin(props) {
   //Login input variables
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
+<<<<<<< HEAD
   //Forget password variables
   const [emailForgetPassword, setEmailForgetPassword] = useState('');
   const [openForgetPassword, setOpenForgetPassword] = useState(false);
+=======
+  const [redirect, setRedirect] = useState(false);
+  //Forgot password variables
+  const [emailForgotPassword, setemailForgotPassword] = useState('');
+  const [openForgotPassword, setOpenForgotPassword] = useState(false);
+>>>>>>> c285d2281128653caeb75b34f75e07153a41f6e2
   //Create new account variables
   const [emailCreateNewAccount, setEmailCreateNewAccount] = useState('');
   const [usernameCreateNewAccount, setUsernameCreateNewAccount] = useState('');
@@ -99,25 +106,30 @@ function Signin(props) {
     }
   };
 
-  //This function is a handler for when the forget password dialog is opened
-  const handleForgetPasswordOpen = () => {
-    setOpenForgetPassword(true);
+  //This function is a handler for when the forgot password dialog is opened
+  const handleForgotPasswordOpen = () => {
+    setOpenForgotPassword(true);
   };
 
-  //This function is a handler for when the forget password dialog is closed
-  const handleForgetPasswordClose = () => {
-    setOpenForgetPassword(false);
+  //This function is a handler for when the forgot password dialog is closed
+  const handleForgotPasswordClose = () => {
+    setOpenForgotPassword(false);
   };
 
-  //This function is a handler for when the forget password button is clicked
-  const handleForgetPassword = () => {
-    console.log('forget password with', emailForgetPassword);
+  //This function is a handler for when the forgot password button is clicked
+  const handleForgotPassword = () => {
+    console.log('forgot password with', emailForgotPassword);
   };
 
+<<<<<<< HEAD
   //This function is a handler for when the enter key is pressed when entering the forget password
   const handleForgetPasswordEnterKey = (event) => {
+=======
+  //This function is a handler for when the enter key is pressed when entering the forgot password
+  const handleForgotPasswordEnterKey = event => {
+>>>>>>> c285d2281128653caeb75b34f75e07153a41f6e2
     if (event.key === 'Enter') {
-      console.log('forget password with', emailForgetPassword);
+      console.log('forgot password with', emailForgotPassword);
     }
   };
 
@@ -150,6 +162,7 @@ function Signin(props) {
   };
 
   return (
+<<<<<<< HEAD
     <div className={classes.polaroidBox}>
       <div className={classes.login}>
         <div className={classes.spacing}>
@@ -189,6 +202,85 @@ function Signin(props) {
                 Please enter your email and we will begin with the process of
                 changing your password
               </DialogContentText>
+=======
+    <div className={classes.login}>
+      <div className={classes.spacing}>
+        <CssTextField
+          id="login username"
+          label="Username"
+          value={usernameInput}
+          onChange={event => {
+            setUsernameInput(event.target.value);
+          }}
+          onKeyPress={handleLoginEnterKey}
+        />
+      </div>
+      <div className={classes.spacing}>
+        <CssTextField
+          id="login password"
+          label="Password"
+          type="password"
+          value={passwordInput}
+          onChange={event => {
+            setPasswordInput(event.target.value);
+          }}
+          onKeyPress={handleLoginEnterKey}
+        />
+      </div>
+      <div className={classes.spacing}>
+        <Button className={classes.loginButton} onClick={handleLogin}>
+          Login
+        </Button>
+      </div>
+      <div className={classes.spacing}>
+        <Button onClick={handleForgotPasswordOpen}>Forgot Password</Button>
+        <Dialog open={openForgotPassword} onClose={handleForgotPasswordClose}>
+          <DialogTitle>Forgot Password</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Please enter your email and we will begin with the process of
+              changing your password
+            </DialogContentText>
+            <CssTextField
+              id="forgot password email"
+              label="Email"
+              fullWidth
+              value={emailForgotPassword}
+              onChange={event => {
+                setemailForgotPassword(event.target.value);
+              }}
+              onKeyPress={handleForgotPasswordEnterKey}
+            ></CssTextField>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              className={classes.loginButton}
+              onClick={handleForgotPassword}
+            >
+              Submit
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+      <div className={classes.spacing}>
+        <Button
+          className={classes.loginButton}
+          onClick={handleCreateNewAccountOpen}
+        >
+          Create New Account
+        </Button>
+        <Dialog
+          open={openCreateNewAccount}
+          onClose={handleCreateNewAccountClose}
+        >
+          <DialogTitle>Create New Account</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Please enter your email, username, and password to create a new
+              account
+            </DialogContentText>
+            <div className={classes.spacing}>
+>>>>>>> c285d2281128653caeb75b34f75e07153a41f6e2
               <CssTextField
                 id="forget password email"
                 label="Email"
