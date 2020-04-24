@@ -17,6 +17,8 @@ import {
   AccountCircle,
   MoreVert
 } from '@material-ui/icons';
+import firebase from '../firebase';
+import { withRouter } from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
   flexCenter: {
@@ -76,13 +78,19 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function TaskBar() {
+function TaskBar(props) {
   const classes = useStyles();
   const [searchInput, setSearchInput] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+
+  if (!firebase.getCurrentUsername()) {
+    //Not logged in
+    props.history.push('/login');
+    return null;
+  }
 
   //This function is a handler to make the scrollbar go back to the top of the screen
   const handleGoToTop = () => {
@@ -138,15 +146,20 @@ export default function TaskBar() {
     console.log('Open settings');
   };
 
-  //This function is a handler for when the user clicks the logoff option
-  const handleLogoff = () => {
-    console.log('Logoff');
-  };
-
   //This function is a handler for when the user clicks the privacy / terms option
   const handlePrivacyTerms = () => {
     console.log('Open privacy / terms');
   };
+
+  //This function is a handler for when the user clicks the logoff option
+  async function handleLogoff() {
+    try {
+      await firebase.logout();
+      props.history.push('/login');
+    } catch (error) {
+      alert(error);
+    }
+  }
 
   const menuId = 'primary-search-account-menu';
   const renderMenu = () => {
@@ -162,8 +175,8 @@ export default function TaskBar() {
       >
         <MenuItem onClick={handleProfile}>Profile</MenuItem>
         <MenuItem onClick={handleSettings}>Settings</MenuItem>
-        <MenuItem onClick={handleLogoff}>Logoff</MenuItem>
         <MenuItem onClick={handlePrivacyTerms}>Privacy / Terms</MenuItem>
+        <MenuItem onClick={handleLogoff}>Logoff</MenuItem>
       </Menu>
     );
   };
@@ -205,7 +218,7 @@ export default function TaskBar() {
           >
             <AccountCircle />
           </IconButton>
-          <p>Name</p>
+          <p>{firebase.getCurrentUsername()}</p>
         </MenuItem>
       </Menu>
     );
@@ -288,3 +301,5 @@ export default function TaskBar() {
     </>
   );
 }
+
+export default withRouter(TaskBar);

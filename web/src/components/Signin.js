@@ -6,62 +6,72 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle
+  DialogTitle,
 } from '@material-ui/core';
-import { Redirect } from 'react-router-dom';
+import firebase from '../firebase';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
+import { withRouter } from 'react-router-dom';
 
-const useStyles = makeStyles(theme => ({
-  flexCenter: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
+const useStyles = makeStyles((theme) => ({
+  polaroidBox: {
+    margin: '10% 40% 0%',
+    padding: '15px 15px 20px',
+    boxShadow: '0px 3px 5px grey',
+  },
+  login: {
+    textAlign: 'center',
+    boxShadow: '0px 0px 1px grey',
+  },
+  spacing: {
+    padding: '10px',
   },
   loginButton: {
     color: 'inherit',
-    textDecoration: 'none'
-  },
-  login: {
-    fontSize: '20px',
-    textAlign: 'center',
-    padding: '150px'
-  },
-  spacing: {
-    padding: '10px'
+    textDecoration: 'none',
+    '&$disabled': {
+      background: 'rgba(0, 0, 0, 0.12)',
+      color: 'white',
+      boxShadow: 'none',
+    },
   },
   passwordSpacing: {
-    margin: theme.spacing(1)
-  }
+    display: 'flex',
+    margin: theme.spacing(1),
+    justifyContent: 'space-between',
+  },
+  passportText: {
+    textAlign: 'center',
+    marginTop: '20px',
+  },
 }));
 
 const CssTextField = withStyles({
   root: {
     '& label.Mui-focused': {
-      color: 'black'
+      color: 'black',
     },
     '& .MuiInput-underline:after': {
-      borderBottomColor: 'black'
+      borderBottomColor: 'black',
     },
     '& .MuiOutlinedInput-root': {
       '& fieldset': {
-        borderColor: 'black'
+        borderColor: 'black',
       },
       '&:hover fieldset': {
-        borderColor: 'black'
+        borderColor: 'black',
       },
       '&.Mui-focused fieldset': {
-        borderColor: 'black'
-      }
-    }
-  }
+        borderColor: 'black',
+      },
+    },
+  },
 })(TextField);
 
-export default function Signin() {
+function Signin(props) {
   const classes = useStyles();
   //Login input variables
-  const [usernameInput, setUsernameInput] = useState('');
+  const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
-  const [redirect, setRedirect] = useState(false);
   //Forget password variables
   const [emailForgetPassword, setEmailForgetPassword] = useState('');
   const [openForgetPassword, setOpenForgetPassword] = useState(false);
@@ -71,40 +81,21 @@ export default function Signin() {
   const [passwordCreateNewAccount, setPasswordCreateNewAccount] = useState('');
   const [
     confirmPasswordCreateNewAccount,
-    setConfirmPasswordCreateNewAccount
+    setConfirmPasswordCreateNewAccount,
   ] = useState('');
   const [openCreateNewAccount, setOpenCreateNewAccount] = useState(false);
+  //button variables
+  let signupButtonDisabled = true;
 
   //This function is a handler for when the user clicks the login button to use the login functionality
   const handleLogin = () => {
-    setRedirect(true);
+    login();
   };
 
   //This function is a handler for when the user clicks the enter key to use the login functionality
-  const handleLoginEnterKey = event => {
+  const handleLoginEnterKey = (event) => {
     if (event.key === 'Enter') {
-      setRedirect(true);
-    }
-  };
-
-  //This function is a renderer that will change the route to /home when the user logs in
-  const renderRedirect = () => {
-    if (redirect) {
-      console.log(
-        'login and go to /home here pass props',
-        usernameInput,
-        'and',
-        passwordInput
-      );
-      return (
-        <Redirect
-          push
-          to={{
-            pathname: '/home',
-            state: { username: usernameInput, password: passwordInput }
-          }}
-        />
-      );
+      login();
     }
   };
 
@@ -124,7 +115,7 @@ export default function Signin() {
   };
 
   //This function is a handler for when the enter key is pressed when entering the forget password
-  const handleForgetPasswordEnterKey = event => {
+  const handleForgetPasswordEnterKey = (event) => {
     if (event.key === 'Enter') {
       console.log('forget password with', emailForgetPassword);
     }
@@ -142,163 +133,184 @@ export default function Signin() {
 
   //This function is a handler for when the create new account button is pressed
   const handleCreateNewAccount = () => {
-    console.log(
-      'create new account with',
-      emailCreateNewAccount,
-      usernameCreateNewAccount,
-      passwordCreateNewAccount,
-      confirmPasswordCreateNewAccount
-    );
+    if (passwordCreateNewAccount !== confirmPasswordCreateNewAccount) {
+    } else {
+      signup();
+    }
   };
 
   //This function is a handler for when the user clicks the enter key to create a new account
-  const handleCreateNewAccountEnterKey = event => {
+  const handleCreateNewAccountEnterKey = (event) => {
     if (event.key === 'Enter') {
-      console.log(
-        'create new account with',
-        emailCreateNewAccount,
-        usernameCreateNewAccount,
-        passwordCreateNewAccount,
-        confirmPasswordCreateNewAccount
-      );
+      if (passwordCreateNewAccount !== confirmPasswordCreateNewAccount) {
+      } else {
+        signup();
+      }
     }
   };
 
   return (
-    <div className={classes.login}>
-      <div className={classes.spacing}>
-        <CssTextField
-          id="login username"
-          label="Username"
-          value={usernameInput}
-          onChange={event => {
-            setUsernameInput(event.target.value);
-          }}
-          onKeyPress={handleLoginEnterKey}
-        />
-      </div>
-      <div className={classes.spacing}>
-        <CssTextField
-          id="login password"
-          label="Password"
-          type="password"
-          value={passwordInput}
-          onChange={event => {
-            setPasswordInput(event.target.value);
-          }}
-          onKeyPress={handleLoginEnterKey}
-        />
-      </div>
-      <div className={classes.spacing}>
-        <Button className={classes.loginButton} onClick={handleLogin}>
-          Login
-        </Button>
-      </div>
-      <div className={classes.spacing}>
-        <Button onClick={handleForgetPasswordOpen}>Forget Password</Button>
-        <Dialog open={openForgetPassword} onClose={handleForgetPasswordClose}>
-          <DialogTitle>Forget Password</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Please enter your email and we will begin with the process of
-              changing your password
-            </DialogContentText>
-            <CssTextField
-              id="forget password email"
-              label="Email"
-              fullWidth
-              value={emailForgetPassword}
-              onChange={event => {
-                setEmailForgetPassword(event.target.value);
-              }}
-              onKeyPress={handleForgetPasswordEnterKey}
-            ></CssTextField>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              className={classes.loginButton}
-              onClick={handleForgetPassword}
-            >
-              Submit
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
-      <div className={classes.spacing}>
-        <Button
-          className={classes.loginButton}
-          onClick={handleCreateNewAccountOpen}
-        >
-          Create New Account
-        </Button>
-        <Dialog
-          open={openCreateNewAccount}
-          onClose={handleCreateNewAccountClose}
-        >
-          <DialogTitle>Create New Account</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Please enter your email, username, and password to create a new
-              account
-            </DialogContentText>
-            <div className={classes.spacing}>
+    <div className={classes.polaroidBox}>
+      <div className={classes.login}>
+        <div className={classes.spacing}>
+          <CssTextField
+            id="login email"
+            label="Email"
+            value={emailInput}
+            onChange={(event) => {
+              setEmailInput(event.target.value);
+            }}
+            onKeyPress={handleLoginEnterKey}
+          />
+        </div>
+        <div className={classes.spacing}>
+          <CssTextField
+            id="login password"
+            label="Password"
+            type="password"
+            value={passwordInput}
+            onChange={(event) => {
+              setPasswordInput(event.target.value);
+            }}
+            onKeyPress={handleLoginEnterKey}
+          />
+        </div>
+        <div className={classes.spacing}>
+          <Button className={classes.loginButton} onClick={handleLogin}>
+            Login
+          </Button>
+        </div>
+        <div className={classes.spacing}>
+          <Button onClick={handleForgetPasswordOpen}>Forget Password</Button>
+          <Dialog open={openForgetPassword} onClose={handleForgetPasswordClose}>
+            <DialogTitle>Forget Password</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Please enter your email and we will begin with the process of
+                changing your password
+              </DialogContentText>
               <CssTextField
-                id="create new account email"
+                id="forget password email"
                 label="Email"
                 fullWidth
-                value={emailCreateNewAccount}
-                onChange={event => {
-                  setEmailCreateNewAccount(event.target.value);
+                value={emailForgetPassword}
+                onChange={(event) => {
+                  setEmailForgetPassword(event.target.value);
                 }}
-                onKeyPress={handleCreateNewAccountEnterKey}
+                onKeyPress={handleForgetPasswordEnterKey}
               ></CssTextField>
-            </div>
-            <div className={classes.spacing}>
-              <CssTextField
-                id="create new account username"
-                label="Username"
-                fullWidth
-                value={usernameCreateNewAccount}
-                onChange={event => {
-                  setUsernameCreateNewAccount(event.target.value);
-                }}
-                onKeyPress={handleCreateNewAccountEnterKey}
-              ></CssTextField>
-            </div>
-            <div className={classes.passwordSpacing}>
-              <CssTextField
-                id="create new account password"
-                label="Password"
-                type="password"
-                value={passwordCreateNewAccount}
-                onChange={event => {
-                  setPasswordCreateNewAccount(event.target.value);
-                }}
-                onKeyPress={handleCreateNewAccountEnterKey}
-              ></CssTextField>
-              <CssTextField
-                id="create new account confirm password"
-                label="Confirm Password"
-                type="password"
-                value={confirmPasswordCreateNewAccount}
-                onChange={event => {
-                  setConfirmPasswordCreateNewAccount(event.target.value);
-                }}
-                onKeyPress={handleCreateNewAccountEnterKey}
-              ></CssTextField>
-            </div>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              className={classes.loginButton}
-              onClick={handleCreateNewAccount}
-            >
-              Sign Up
-            </Button>
-          </DialogActions>
-        </Dialog>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                className={classes.loginButton}
+                onClick={handleForgetPassword}
+              >
+                Submit
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
+        <div className={classes.spacing}>
+          <Button
+            className={classes.loginButton}
+            onClick={handleCreateNewAccountOpen}
+          >
+            Create New Account
+          </Button>
+          <Dialog
+            open={openCreateNewAccount}
+            onClose={handleCreateNewAccountClose}
+          >
+            <DialogTitle>Create New Account</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Please enter your email, username, and password to create a new
+                account
+              </DialogContentText>
+              <div className={classes.spacing}>
+                <CssTextField
+                  id="create new account email"
+                  label="Email"
+                  fullWidth
+                  value={emailCreateNewAccount}
+                  onChange={(event) => {
+                    setEmailCreateNewAccount(event.target.value);
+                  }}
+                  onKeyPress={handleCreateNewAccountEnterKey}
+                ></CssTextField>
+              </div>
+              <div className={classes.spacing}>
+                <CssTextField
+                  id="create new account username"
+                  label="Username"
+                  fullWidth
+                  value={usernameCreateNewAccount}
+                  onChange={(event) => {
+                    setUsernameCreateNewAccount(event.target.value);
+                  }}
+                  onKeyPress={handleCreateNewAccountEnterKey}
+                ></CssTextField>
+              </div>
+              <div className={classes.passwordSpacing}>
+                <CssTextField
+                  id="create new account password"
+                  label="Password"
+                  type="password"
+                  value={passwordCreateNewAccount}
+                  onChange={(event) => {
+                    setPasswordCreateNewAccount(event.target.value);
+                  }}
+                  onKeyPress={handleCreateNewAccountEnterKey}
+                ></CssTextField>
+                <CssTextField
+                  id="create new account confirm password"
+                  label="Confirm Password"
+                  type="password"
+                  value={confirmPasswordCreateNewAccount}
+                  onChange={(event) => {
+                    setConfirmPasswordCreateNewAccount(event.target.value);
+                  }}
+                  onKeyPress={handleCreateNewAccountEnterKey}
+                ></CssTextField>
+              </div>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                disabled={signupButtonDisabled}
+                className={classes.loginButton}
+                onClick={handleCreateNewAccount}
+              >
+                Sign Up
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
       </div>
-      {renderRedirect()}
+      <div className={classes.passportText}>Polaroids</div>
     </div>
   );
+
+  async function login() {
+    try {
+      await firebase.login(emailInput, passwordInput);
+      props.history.push('/');
+    } catch (error) {
+      alert(error);
+    }
+  }
+
+  async function signup() {
+    try {
+      await firebase.register(
+        usernameCreateNewAccount,
+        emailCreateNewAccount,
+        passwordCreateNewAccount
+      );
+      handleCreateNewAccountClose();
+    } catch (error) {
+      alert(error);
+    }
+  }
 }
+
+export default withRouter(Signin);
