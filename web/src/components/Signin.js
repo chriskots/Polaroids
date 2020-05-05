@@ -9,12 +9,25 @@ import {
   DialogTitle,
 } from '@material-ui/core';
 import firebase from '../firebase';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+import {
+  makeStyles,
+  createMuiTheme,
+  ThemeProvider,
+} from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   polaroidBox: {
-    margin: '10% 40% 0%',
+    margin: '10% 10% 0%',
+    [theme.breakpoints.up('sm')]: {
+      margin: '10% 30% 0%',
+    },
+    [theme.breakpoints.up('lg')]: {
+      margin: '10% 35% 0%',
+    },
+    [theme.breakpoints.up('xl')]: {
+      margin: '10% 40% 0%',
+    },
     padding: '15px 15px 20px',
     boxShadow: '0px 3px 5px grey',
   },
@@ -45,43 +58,23 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CssTextField = withStyles({
-  root: {
-    '& label.Mui-focused': {
-      color: 'black',
-    },
-    '& .MuiInput-underline:after': {
-      borderBottomColor: 'black',
-    },
-    '& .MuiOutlinedInput-root': {
-      '& fieldset': {
-        borderColor: 'black',
-      },
-      '&:hover fieldset': {
-        borderColor: 'black',
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: 'black',
-      },
+const textFieldTheme = createMuiTheme({
+  palette: {
+    primary: {
+      main: '#171717',
     },
   },
-})(TextField);
+});
 
 function Signin(props) {
   const classes = useStyles();
   //Login input variables
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
-<<<<<<< HEAD
-  //Forget password variables
-  const [emailForgetPassword, setEmailForgetPassword] = useState('');
-  const [openForgetPassword, setOpenForgetPassword] = useState(false);
-=======
-  const [redirect, setRedirect] = useState(false);
+  const [loginErrorMessage, setLoginErrorMessage] = useState(' ');
   //Forgot password variables
-  const [emailForgotPassword, setemailForgotPassword] = useState('');
+  const [emailForgotPassword, setEmailForgotPassword] = useState('');
   const [openForgotPassword, setOpenForgotPassword] = useState(false);
->>>>>>> c285d2281128653caeb75b34f75e07153a41f6e2
   //Create new account variables
   const [emailCreateNewAccount, setEmailCreateNewAccount] = useState('');
   const [usernameCreateNewAccount, setUsernameCreateNewAccount] = useState('');
@@ -91,8 +84,10 @@ function Signin(props) {
     setConfirmPasswordCreateNewAccount,
   ] = useState('');
   const [openCreateNewAccount, setOpenCreateNewAccount] = useState(false);
-  //button variables
-  let signupButtonDisabled = true;
+  const [
+    createNewAccountPasswordIncorrect,
+    setCreateNewAccountPasswordIncorrect,
+  ] = useState(false);
 
   //This function is a handler for when the user clicks the login button to use the login functionality
   const handleLogin = () => {
@@ -121,13 +116,8 @@ function Signin(props) {
     console.log('forgot password with', emailForgotPassword);
   };
 
-<<<<<<< HEAD
-  //This function is a handler for when the enter key is pressed when entering the forget password
-  const handleForgetPasswordEnterKey = (event) => {
-=======
   //This function is a handler for when the enter key is pressed when entering the forgot password
-  const handleForgotPasswordEnterKey = event => {
->>>>>>> c285d2281128653caeb75b34f75e07153a41f6e2
+  const handleForgotPasswordEnterKey = (event) => {
     if (event.key === 'Enter') {
       console.log('forgot password with', emailForgotPassword);
     }
@@ -145,48 +135,48 @@ function Signin(props) {
 
   //This function is a handler for when the create new account button is pressed
   const handleCreateNewAccount = () => {
-    if (passwordCreateNewAccount !== confirmPasswordCreateNewAccount) {
-    } else {
-      signup();
-    }
+    signup();
   };
 
   //This function is a handler for when the user clicks the enter key to create a new account
   const handleCreateNewAccountEnterKey = (event) => {
     if (event.key === 'Enter') {
-      if (passwordCreateNewAccount !== confirmPasswordCreateNewAccount) {
-      } else {
+      if (passwordCreateNewAccount === confirmPasswordCreateNewAccount) {
         signup();
       }
     }
   };
 
   return (
-<<<<<<< HEAD
     <div className={classes.polaroidBox}>
       <div className={classes.login}>
         <div className={classes.spacing}>
-          <CssTextField
-            id="login email"
-            label="Email"
-            value={emailInput}
-            onChange={(event) => {
-              setEmailInput(event.target.value);
-            }}
-            onKeyPress={handleLoginEnterKey}
-          />
+          <ThemeProvider theme={textFieldTheme}>
+            <TextField
+              id="login email"
+              label="Email"
+              value={emailInput}
+              onChange={(event) => {
+                setEmailInput(event.target.value);
+              }}
+              onKeyPress={handleLoginEnterKey}
+            />
+          </ThemeProvider>
         </div>
         <div className={classes.spacing}>
-          <CssTextField
-            id="login password"
-            label="Password"
-            type="password"
-            value={passwordInput}
-            onChange={(event) => {
-              setPasswordInput(event.target.value);
-            }}
-            onKeyPress={handleLoginEnterKey}
-          />
+          <ThemeProvider theme={textFieldTheme}>
+            <TextField
+              id="login password"
+              label="Password"
+              type="password"
+              value={passwordInput}
+              onChange={(event) => {
+                setPasswordInput(event.target.value);
+              }}
+              onKeyPress={handleLoginEnterKey}
+              helperText={loginErrorMessage}
+            />
+          </ThemeProvider>
         </div>
         <div className={classes.spacing}>
           <Button className={classes.loginButton} onClick={handleLogin}>
@@ -194,108 +184,31 @@ function Signin(props) {
           </Button>
         </div>
         <div className={classes.spacing}>
-          <Button onClick={handleForgetPasswordOpen}>Forget Password</Button>
-          <Dialog open={openForgetPassword} onClose={handleForgetPasswordClose}>
-            <DialogTitle>Forget Password</DialogTitle>
+          <Button onClick={handleForgotPasswordOpen}>Forgot Password</Button>
+          <Dialog open={openForgotPassword} onClose={handleForgotPasswordClose}>
+            <DialogTitle>Forgot Password</DialogTitle>
             <DialogContent>
               <DialogContentText>
                 Please enter your email and we will begin with the process of
                 changing your password
               </DialogContentText>
-=======
-    <div className={classes.login}>
-      <div className={classes.spacing}>
-        <CssTextField
-          id="login username"
-          label="Username"
-          value={usernameInput}
-          onChange={event => {
-            setUsernameInput(event.target.value);
-          }}
-          onKeyPress={handleLoginEnterKey}
-        />
-      </div>
-      <div className={classes.spacing}>
-        <CssTextField
-          id="login password"
-          label="Password"
-          type="password"
-          value={passwordInput}
-          onChange={event => {
-            setPasswordInput(event.target.value);
-          }}
-          onKeyPress={handleLoginEnterKey}
-        />
-      </div>
-      <div className={classes.spacing}>
-        <Button className={classes.loginButton} onClick={handleLogin}>
-          Login
-        </Button>
-      </div>
-      <div className={classes.spacing}>
-        <Button onClick={handleForgotPasswordOpen}>Forgot Password</Button>
-        <Dialog open={openForgotPassword} onClose={handleForgotPasswordClose}>
-          <DialogTitle>Forgot Password</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Please enter your email and we will begin with the process of
-              changing your password
-            </DialogContentText>
-            <CssTextField
-              id="forgot password email"
-              label="Email"
-              fullWidth
-              value={emailForgotPassword}
-              onChange={event => {
-                setemailForgotPassword(event.target.value);
-              }}
-              onKeyPress={handleForgotPasswordEnterKey}
-            ></CssTextField>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              className={classes.loginButton}
-              onClick={handleForgotPassword}
-            >
-              Submit
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
-      <div className={classes.spacing}>
-        <Button
-          className={classes.loginButton}
-          onClick={handleCreateNewAccountOpen}
-        >
-          Create New Account
-        </Button>
-        <Dialog
-          open={openCreateNewAccount}
-          onClose={handleCreateNewAccountClose}
-        >
-          <DialogTitle>Create New Account</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Please enter your email, username, and password to create a new
-              account
-            </DialogContentText>
-            <div className={classes.spacing}>
->>>>>>> c285d2281128653caeb75b34f75e07153a41f6e2
-              <CssTextField
-                id="forget password email"
-                label="Email"
-                fullWidth
-                value={emailForgetPassword}
-                onChange={(event) => {
-                  setEmailForgetPassword(event.target.value);
-                }}
-                onKeyPress={handleForgetPasswordEnterKey}
-              ></CssTextField>
+              <ThemeProvider theme={textFieldTheme}>
+                <TextField
+                  id="forgot password email"
+                  label="Email"
+                  fullWidth
+                  value={emailForgotPassword}
+                  onChange={(event) => {
+                    setEmailForgotPassword(event.target.value);
+                  }}
+                  onKeyPress={handleForgotPasswordEnterKey}
+                />
+              </ThemeProvider>
             </DialogContent>
             <DialogActions>
               <Button
                 className={classes.loginButton}
-                onClick={handleForgetPassword}
+                onClick={handleForgotPassword}
               >
                 Submit
               </Button>
@@ -320,55 +233,90 @@ function Signin(props) {
                 account
               </DialogContentText>
               <div className={classes.spacing}>
-                <CssTextField
-                  id="create new account email"
-                  label="Email"
-                  fullWidth
-                  value={emailCreateNewAccount}
-                  onChange={(event) => {
-                    setEmailCreateNewAccount(event.target.value);
-                  }}
-                  onKeyPress={handleCreateNewAccountEnterKey}
-                ></CssTextField>
+                <ThemeProvider theme={textFieldTheme}>
+                  <TextField
+                    id="create new account email"
+                    label="Email"
+                    fullWidth
+                    value={emailCreateNewAccount}
+                    onChange={(event) => {
+                      setEmailCreateNewAccount(event.target.value);
+                    }}
+                    onKeyPress={handleCreateNewAccountEnterKey}
+                  />
+                </ThemeProvider>
               </div>
               <div className={classes.spacing}>
-                <CssTextField
-                  id="create new account username"
-                  label="Username"
-                  fullWidth
-                  value={usernameCreateNewAccount}
-                  onChange={(event) => {
-                    setUsernameCreateNewAccount(event.target.value);
-                  }}
-                  onKeyPress={handleCreateNewAccountEnterKey}
-                ></CssTextField>
+                <ThemeProvider theme={textFieldTheme}>
+                  <TextField
+                    id="create new account username"
+                    label="Username"
+                    fullWidth
+                    value={usernameCreateNewAccount}
+                    onChange={(event) => {
+                      setUsernameCreateNewAccount(event.target.value);
+                    }}
+                    onKeyPress={handleCreateNewAccountEnterKey}
+                  />
+                </ThemeProvider>
               </div>
               <div className={classes.passwordSpacing}>
-                <CssTextField
-                  id="create new account password"
-                  label="Password"
-                  type="password"
-                  value={passwordCreateNewAccount}
-                  onChange={(event) => {
-                    setPasswordCreateNewAccount(event.target.value);
-                  }}
-                  onKeyPress={handleCreateNewAccountEnterKey}
-                ></CssTextField>
-                <CssTextField
-                  id="create new account confirm password"
-                  label="Confirm Password"
-                  type="password"
-                  value={confirmPasswordCreateNewAccount}
-                  onChange={(event) => {
-                    setConfirmPasswordCreateNewAccount(event.target.value);
-                  }}
-                  onKeyPress={handleCreateNewAccountEnterKey}
-                ></CssTextField>
+                <ThemeProvider theme={textFieldTheme}>
+                  <TextField
+                    id="create new account password"
+                    label="Password"
+                    type="password"
+                    value={passwordCreateNewAccount}
+                    onChange={(event) => {
+                      setPasswordCreateNewAccount(event.target.value);
+                      if (
+                        event.target.value === confirmPasswordCreateNewAccount
+                      ) {
+                        setCreateNewAccountPasswordIncorrect(false);
+                      } else {
+                        setCreateNewAccountPasswordIncorrect(true);
+                      }
+                    }}
+                    onKeyPress={handleCreateNewAccountEnterKey}
+                    error={createNewAccountPasswordIncorrect ? true : false}
+                  />
+                </ThemeProvider>
+                <ThemeProvider theme={textFieldTheme}>
+                  <TextField
+                    id="create new account confirm password"
+                    label="Confirm Password"
+                    type="password"
+                    value={confirmPasswordCreateNewAccount}
+                    onChange={(event) => {
+                      setConfirmPasswordCreateNewAccount(event.target.value);
+                      if (passwordCreateNewAccount === event.target.value) {
+                        setCreateNewAccountPasswordIncorrect(false);
+                      } else {
+                        setCreateNewAccountPasswordIncorrect(true);
+                      }
+                    }}
+                    onKeyPress={handleCreateNewAccountEnterKey}
+                    helperText={
+                      createNewAccountPasswordIncorrect
+                        ? 'Passwords do not match'
+                        : ' '
+                    }
+                    error={createNewAccountPasswordIncorrect ? true : false}
+                  />
+                </ThemeProvider>
               </div>
             </DialogContent>
             <DialogActions>
               <Button
-                disabled={signupButtonDisabled}
+                disabled={
+                  !emailCreateNewAccount ||
+                  !usernameCreateNewAccount ||
+                  !passwordCreateNewAccount ||
+                  !confirmPasswordCreateNewAccount ||
+                  passwordCreateNewAccount !== confirmPasswordCreateNewAccount
+                    ? true
+                    : false
+                }
                 className={classes.loginButton}
                 onClick={handleCreateNewAccount}
               >
@@ -387,7 +335,19 @@ function Signin(props) {
       await firebase.login(emailInput, passwordInput);
       props.history.push('/');
     } catch (error) {
-      alert(error);
+      if (error.code === 'auth/invalid-email') {
+        //Error message for when the email format is wrong
+        setLoginErrorMessage('Invalid email format');
+      } else if (
+        error.code === 'auth/user-not-found' ||
+        error.code === 'auth/wrong-password'
+      ) {
+        //Error message for when the email or passwrod is wrong
+        setLoginErrorMessage('Email or password is incorrect');
+      } else {
+        //Unknown error found
+        setLoginErrorMessage('Login error');
+      }
     }
   }
 
@@ -400,7 +360,10 @@ function Signin(props) {
       );
       handleCreateNewAccountClose();
     } catch (error) {
-      alert(error);
+      //auth/invalid-email
+      //auth/weak-password
+      //auth/email-already-in-use
+      console.log(error);
     }
   }
 }

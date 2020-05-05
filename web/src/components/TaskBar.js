@@ -8,41 +8,44 @@ import {
   Menu,
   MenuItem,
   IconButton,
-  Badge
+  Badge,
 } from '@material-ui/core';
 import {
   Search,
   Notifications,
   Chat,
   AccountCircle,
-  MoreVert
+  MoreVert,
 } from '@material-ui/icons';
 import firebase from '../firebase';
 import { withRouter } from 'react-router-dom';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   flexCenter: {
     display: 'flex',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   homeButton: {
     color: 'inherit',
-    fontSize: '0.8rem'
+    fontSize: '0.6rem',
+    [theme.breakpoints.up('sm')]: {
+      fontSize: '0.8rem',
+    },
   },
   search: {
     position: 'relative',
     borderRadius: theme.shape.borderRadius,
     backgroundColor: fade(theme.palette.common.black, 0.1),
     '&:hover': {
-      backgroundColor: fade(theme.palette.common.black, 0.2)
+      backgroundColor: fade(theme.palette.common.black, 0.2),
     },
     marginRight: theme.spacing(2),
     marginLeft: 0,
     width: 'auto',
     [theme.breakpoints.up('sm')]: {
       marginLeft: theme.spacing(3),
-      width: 'auto'
-    }
+      width: 'auto',
+    },
   },
   searchIcon: {
     width: theme.spacing(7),
@@ -51,31 +54,31 @@ const useStyles = makeStyles(theme => ({
     pointerEvents: 'none',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   inputBaseRoot: {
-    color: 'priamry'
+    color: 'priamry',
   },
   inputBaseInput: {
     padding: theme.spacing(1, 1, 1, 7),
     transition: theme.transitions.create('width'),
     width: '100%',
     [theme.breakpoints.up('md')]: {
-      width: 200
-    }
+      width: 200,
+    },
   },
   sectionDesktop: {
     display: 'none',
     [theme.breakpoints.up('md')]: {
-      display: 'flex'
-    }
+      display: 'flex',
+    },
   },
   sectionMobile: {
     display: 'flex',
     [theme.breakpoints.up('md')]: {
-      display: 'none'
-    }
-  }
+      display: 'none',
+    },
+  },
 }));
 
 function TaskBar(props) {
@@ -98,7 +101,7 @@ function TaskBar(props) {
   };
 
   //This function is a handler for when the user clicks the enter key to use the search functionality
-  const handleSearch = event => {
+  const handleSearch = (event) => {
     if (event.key === 'Enter') {
       //Add search functionality here
       console.log(`search ${searchInput} here`);
@@ -127,12 +130,12 @@ function TaskBar(props) {
   };
 
   //This function is a handler for when the profile button is selected on the menu
-  const handleProfileMenuOpen = event => {
+  const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
   //This is a handler for when the mobile menu is opened
-  const handleMobileMenuOpen = event => {
+  const handleMobileMenuOpen = (event) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
@@ -243,11 +246,11 @@ function TaskBar(props) {
               placeholder="Search"
               classes={{
                 root: classes.inputBaseRoot,
-                input: classes.inputBaseInput
+                input: classes.inputBaseInput,
               }}
               inputProps={{ 'aria-label': 'search' }}
               value={searchInput}
-              onChange={event => {
+              onChange={(event) => {
                 setSearchInput(event.target.value);
               }}
               onKeyPress={handleSearch}
