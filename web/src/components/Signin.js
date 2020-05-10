@@ -77,7 +77,14 @@ function Signin(props) {
   const [openForgotPassword, setOpenForgotPassword] = useState(false);
   //Create new account variables
   const [emailCreateNewAccount, setEmailCreateNewAccount] = useState('');
+  const [emailCreateNewAccountError, setEmailCreateNewAccountError] = useState(
+    ' '
+  );
   const [usernameCreateNewAccount, setUsernameCreateNewAccount] = useState('');
+  const [
+    usernameCreateNewAccountError,
+    setUsernameCreateNewAccountError,
+  ] = useState(false);
   const [passwordCreateNewAccount, setPasswordCreateNewAccount] = useState('');
   const [
     confirmPasswordCreateNewAccount,
@@ -87,7 +94,7 @@ function Signin(props) {
   const [
     createNewAccountPasswordIncorrect,
     setCreateNewAccountPasswordIncorrect,
-  ] = useState(false);
+  ] = useState(' ');
 
   //This function is a handler for when the user clicks the login button to use the login functionality
   const handleLogin = () => {
@@ -243,6 +250,8 @@ function Signin(props) {
                       setEmailCreateNewAccount(event.target.value);
                     }}
                     onKeyPress={handleCreateNewAccountEnterKey}
+                    error={emailCreateNewAccountError !== ' ' ? true : false}
+                    helperText={emailCreateNewAccountError}
                   />
                 </ThemeProvider>
               </div>
@@ -255,8 +264,15 @@ function Signin(props) {
                     value={usernameCreateNewAccount}
                     onChange={(event) => {
                       setUsernameCreateNewAccount(event.target.value);
+                      setUsernameCreateNewAccountError(false);
                     }}
+                    error={usernameCreateNewAccountError}
                     onKeyPress={handleCreateNewAccountEnterKey}
+                    helperText={
+                      usernameCreateNewAccountError
+                        ? 'Username already in use'
+                        : ' '
+                    }
                   />
                 </ThemeProvider>
               </div>
@@ -272,13 +288,17 @@ function Signin(props) {
                       if (
                         event.target.value === confirmPasswordCreateNewAccount
                       ) {
-                        setCreateNewAccountPasswordIncorrect(false);
+                        setCreateNewAccountPasswordIncorrect(' ');
                       } else {
-                        setCreateNewAccountPasswordIncorrect(true);
+                        setCreateNewAccountPasswordIncorrect(
+                          'Passwords do not match'
+                        );
                       }
                     }}
                     onKeyPress={handleCreateNewAccountEnterKey}
-                    error={createNewAccountPasswordIncorrect ? true : false}
+                    error={
+                      createNewAccountPasswordIncorrect !== ' ' ? true : false
+                    }
                   />
                 </ThemeProvider>
                 <ThemeProvider theme={textFieldTheme}>
@@ -290,18 +310,18 @@ function Signin(props) {
                     onChange={(event) => {
                       setConfirmPasswordCreateNewAccount(event.target.value);
                       if (passwordCreateNewAccount === event.target.value) {
-                        setCreateNewAccountPasswordIncorrect(false);
+                        setCreateNewAccountPasswordIncorrect(' ');
                       } else {
-                        setCreateNewAccountPasswordIncorrect(true);
+                        setCreateNewAccountPasswordIncorrect(
+                          'Passwords do not match'
+                        );
                       }
                     }}
                     onKeyPress={handleCreateNewAccountEnterKey}
-                    helperText={
-                      createNewAccountPasswordIncorrect
-                        ? 'Passwords do not match'
-                        : ' '
+                    helperText={createNewAccountPasswordIncorrect}
+                    error={
+                      createNewAccountPasswordIncorrect !== ' ' ? true : false
                     }
-                    error={createNewAccountPasswordIncorrect ? true : false}
                   />
                 </ThemeProvider>
               </div>
@@ -311,6 +331,7 @@ function Signin(props) {
                 disabled={
                   !emailCreateNewAccount ||
                   !usernameCreateNewAccount ||
+                  usernameCreateNewAccountError ||
                   !passwordCreateNewAccount ||
                   !confirmPasswordCreateNewAccount ||
                   passwordCreateNewAccount !== confirmPasswordCreateNewAccount
@@ -353,17 +374,32 @@ function Signin(props) {
 
   async function signup() {
     try {
+      if ((await firebase.checkUsername(usernameCreateNewAccount)) === true) {
+        let err = 'auth/username-already-in-use';
+        throw err;
+      }
       await firebase.register(
         usernameCreateNewAccount,
         emailCreateNewAccount,
         passwordCreateNewAccount
       );
       handleCreateNewAccountClose();
+      setUsernameCreateNewAccount('');
+      setEmailCreateNewAccount('');
+      setPasswordCreateNewAccount('');
+      setConfirmPasswordCreateNewAccount('');
     } catch (error) {
-      //auth/invalid-email
-      //auth/weak-password
-      //auth/email-already-in-use
-      console.log(error);
+      if (error.code === 'auth/weak-password') {
+        setCreateNewAccountPasswordIncorrect('Weak password');
+      } else if (error.code === 'auth/email-already-in-use') {
+        setEmailCreateNewAccountError('Email already in use');
+      } else if (error.code === 'auth/invalid-email') {
+        setEmailCreateNewAccountError('Invalid Email');
+      } else if (error === 'auth/username-already-in-use') {
+        setUsernameCreateNewAccountError(true);
+      } else {
+        setCreateNewAccountPasswordIncorrect('Signup error');
+      }
     }
   }
 }

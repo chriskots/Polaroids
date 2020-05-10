@@ -8,7 +8,7 @@ const config = {
   databaseURL: 'https://polaroids-firebase.firebaseio.com',
   projectId: 'polaroids-firebase',
   storageBucket: 'polaroids-firebase.appspot.com',
-  messagingSenderId: '876964959755'
+  messagingSenderId: '876964959755',
 };
 
 class Firebase {
@@ -16,6 +16,7 @@ class Firebase {
     app.initializeApp(config);
     this.auth = app.auth();
     this.db = app.firestore();
+    this.usernameMatch = false;
   }
 
   login(email, password) {
@@ -27,14 +28,38 @@ class Firebase {
   }
 
   async register(username, email, password) {
-    await this.auth.createUserWithEmailAndPassword(email, password);
+    await this.auth
+      .createUserWithEmailAndPassword(email, password)
+      .then((resp) => {
+        return this.db
+          .collection('users')
+          .doc(resp.user.uid)
+          .set({
+            username: username,
+          });
+      });
     return this.auth.currentUser.updateProfile({
-      displayName: username
+      displayName: username,
     });
   }
 
+  async checkUsername(username) {
+    await this.db
+      .collection('users')
+      .where('username', '==', username)
+      .get()
+      .then((snapshot) => {
+        if (!snapshot.empty) {
+          this.usernameMatch = true;
+        } else {
+          this.usernameMatch = false;
+        }
+      });
+    return this.usernameMatch;
+  }
+
   isInitialized() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.auth.onAuthStateChanged(resolve);
     });
   }
