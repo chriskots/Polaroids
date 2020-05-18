@@ -41,11 +41,6 @@ const useStyles = makeStyles((theme) => ({
   loginButton: {
     color: 'inherit',
     textDecoration: 'none',
-    '&$disabled': {
-      background: 'rgba(0, 0, 0, 0.12)',
-      color: 'white',
-      boxShadow: 'none',
-    },
   },
   passwordSpacing: {
     display: 'flex',
@@ -71,9 +66,10 @@ function Signin(props) {
   //Login input variables
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
-  const [loginErrorMessage, setLoginErrorMessage] = useState(' ');
+  const [loginError, setLoginError] = useState(' ');
   //Forgot password variables
   const [emailForgotPassword, setEmailForgotPassword] = useState('');
+  const [emailForgotPasswordError, setEmailForgotPasswordError] = useState(' ');
   const [openForgotPassword, setOpenForgotPassword] = useState(false);
   //Create new account variables
   const [emailCreateNewAccount, setEmailCreateNewAccount] = useState('');
@@ -84,17 +80,17 @@ function Signin(props) {
   const [
     usernameCreateNewAccountError,
     setUsernameCreateNewAccountError,
-  ] = useState(false);
+  ] = useState(' ');
   const [passwordCreateNewAccount, setPasswordCreateNewAccount] = useState('');
   const [
     confirmPasswordCreateNewAccount,
     setConfirmPasswordCreateNewAccount,
   ] = useState('');
-  const [openCreateNewAccount, setOpenCreateNewAccount] = useState(false);
   const [
-    createNewAccountPasswordIncorrect,
-    setCreateNewAccountPasswordIncorrect,
+    createNewAccountPasswordError,
+    setCreateNewAccountPasswordError,
   ] = useState(' ');
+  const [openCreateNewAccount, setOpenCreateNewAccount] = useState(false);
 
   //This function is a handler for when the user clicks the login button to use the login functionality
   const handleLogin = () => {
@@ -120,13 +116,13 @@ function Signin(props) {
 
   //This function is a handler for when the forgot password button is clicked
   const handleForgotPassword = () => {
-    console.log('forgot password with', emailForgotPassword);
+    forgotPassword();
   };
 
   //This function is a handler for when the enter key is pressed when entering the forgot password
   const handleForgotPasswordEnterKey = (event) => {
     if (event.key === 'Enter') {
-      console.log('forgot password with', emailForgotPassword);
+      forgotPassword();
     }
   };
 
@@ -181,7 +177,7 @@ function Signin(props) {
                 setPasswordInput(event.target.value);
               }}
               onKeyPress={handleLoginEnterKey}
-              helperText={loginErrorMessage}
+              helperText={loginError}
             />
           </ThemeProvider>
         </div>
@@ -209,6 +205,7 @@ function Signin(props) {
                     setEmailForgotPassword(event.target.value);
                   }}
                   onKeyPress={handleForgotPasswordEnterKey}
+                  helperText={emailForgotPasswordError}
                 />
               </ThemeProvider>
             </DialogContent>
@@ -264,15 +261,11 @@ function Signin(props) {
                     value={usernameCreateNewAccount}
                     onChange={(event) => {
                       setUsernameCreateNewAccount(event.target.value);
-                      setUsernameCreateNewAccountError(false);
+                      setUsernameCreateNewAccountError(' ');
                     }}
-                    error={usernameCreateNewAccountError}
+                    error={usernameCreateNewAccountError !== ' ' ? true : false}
                     onKeyPress={handleCreateNewAccountEnterKey}
-                    helperText={
-                      usernameCreateNewAccountError
-                        ? 'Username already in use'
-                        : ' '
-                    }
+                    helperText={usernameCreateNewAccountError}
                   />
                 </ThemeProvider>
               </div>
@@ -288,17 +281,15 @@ function Signin(props) {
                       if (
                         event.target.value === confirmPasswordCreateNewAccount
                       ) {
-                        setCreateNewAccountPasswordIncorrect(' ');
+                        setCreateNewAccountPasswordError(' ');
                       } else {
-                        setCreateNewAccountPasswordIncorrect(
+                        setCreateNewAccountPasswordError(
                           'Passwords do not match'
                         );
                       }
                     }}
                     onKeyPress={handleCreateNewAccountEnterKey}
-                    error={
-                      createNewAccountPasswordIncorrect !== ' ' ? true : false
-                    }
+                    error={createNewAccountPasswordError !== ' ' ? true : false}
                   />
                 </ThemeProvider>
                 <ThemeProvider theme={textFieldTheme}>
@@ -310,18 +301,16 @@ function Signin(props) {
                     onChange={(event) => {
                       setConfirmPasswordCreateNewAccount(event.target.value);
                       if (passwordCreateNewAccount === event.target.value) {
-                        setCreateNewAccountPasswordIncorrect(' ');
+                        setCreateNewAccountPasswordError(' ');
                       } else {
-                        setCreateNewAccountPasswordIncorrect(
+                        setCreateNewAccountPasswordError(
                           'Passwords do not match'
                         );
                       }
                     }}
                     onKeyPress={handleCreateNewAccountEnterKey}
-                    helperText={createNewAccountPasswordIncorrect}
-                    error={
-                      createNewAccountPasswordIncorrect !== ' ' ? true : false
-                    }
+                    helperText={createNewAccountPasswordError}
+                    error={createNewAccountPasswordError !== ' ' ? true : false}
                   />
                 </ThemeProvider>
               </div>
@@ -331,7 +320,7 @@ function Signin(props) {
                 disabled={
                   !emailCreateNewAccount ||
                   !usernameCreateNewAccount ||
-                  usernameCreateNewAccountError ||
+                  (usernameCreateNewAccountError !== ' ' ? true : false) ||
                   !passwordCreateNewAccount ||
                   !confirmPasswordCreateNewAccount ||
                   passwordCreateNewAccount !== confirmPasswordCreateNewAccount
@@ -354,20 +343,33 @@ function Signin(props) {
   async function login() {
     try {
       await firebase.login(emailInput, passwordInput);
+      setLoginError(' ');
       props.history.push('/');
     } catch (error) {
       if (error.code === 'auth/invalid-email') {
-        //Error message for when the email format is wrong
-        setLoginErrorMessage('Invalid email format');
+        setLoginError('Invalid email format');
       } else if (
         error.code === 'auth/user-not-found' ||
         error.code === 'auth/wrong-password'
       ) {
-        //Error message for when the email or passwrod is wrong
-        setLoginErrorMessage('Email or password is incorrect');
+        setLoginError('Email or password is incorrect');
       } else {
-        //Unknown error found
-        setLoginErrorMessage('Login error');
+        setLoginError('Login error');
+      }
+    }
+  }
+
+  async function forgotPassword() {
+    try {
+      await firebase.passwordReset(emailForgotPassword);
+      handleForgotPasswordClose();
+      setEmailForgotPassword('');
+      setEmailForgotPasswordError(' ');
+    } catch (error) {
+      if (error.code === 'auth/invalid-email') {
+        setEmailForgotPasswordError('Invalid email format');
+      } else {
+        setEmailForgotPasswordError('Email does not exist');
       }
     }
   }
@@ -388,17 +390,33 @@ function Signin(props) {
       setEmailCreateNewAccount('');
       setPasswordCreateNewAccount('');
       setConfirmPasswordCreateNewAccount('');
+      setCreateNewAccountPasswordError(' ');
+      setEmailCreateNewAccountError(' ');
+      setUsernameCreateNewAccountError(' ');
     } catch (error) {
+      //Weak password error
       if (error.code === 'auth/weak-password') {
-        setCreateNewAccountPasswordIncorrect('Weak password');
-      } else if (error.code === 'auth/email-already-in-use') {
-        setEmailCreateNewAccountError('Email already in use');
-      } else if (error.code === 'auth/invalid-email') {
-        setEmailCreateNewAccountError('Invalid Email');
-      } else if (error === 'auth/username-already-in-use') {
-        setUsernameCreateNewAccountError(true);
+        setCreateNewAccountPasswordError('Weak password');
       } else {
-        setCreateNewAccountPasswordIncorrect('Signup error');
+        setCreateNewAccountPasswordError(' ');
+      }
+      //Email already in use error
+      if (error.code === 'auth/email-already-in-use') {
+        setEmailCreateNewAccountError('Email already in use');
+      } else {
+        setEmailCreateNewAccountError(' ');
+      }
+      //Invalid email error
+      if (error.code === 'auth/invalid-email') {
+        setEmailCreateNewAccountError('Invalid email format');
+      } else {
+        setEmailCreateNewAccountError(' ');
+      }
+      //Username already in use error
+      if (error === 'auth/username-already-in-use') {
+        setUsernameCreateNewAccountError('Username already in use');
+      } else {
+        setUsernameCreateNewAccountError(' ');
       }
     }
   }

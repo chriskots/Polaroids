@@ -17,6 +17,7 @@ class Firebase {
     this.auth = app.auth();
     this.db = app.firestore();
     this.usernameMatch = false;
+    this.usernameSearch = '';
   }
 
   login(email, password) {
@@ -25,6 +26,10 @@ class Firebase {
 
   logout() {
     return this.auth.signOut();
+  }
+
+  passwordReset(email) {
+    return this.auth.sendPasswordResetEmail(email);
   }
 
   async register(username, email, password) {
@@ -56,6 +61,23 @@ class Firebase {
         }
       });
     return this.usernameMatch;
+  }
+
+  //Use algolia to do fulltext searches for username searches to be dynamic to what the user types
+  async searchUsernames(username) {
+    await this.db
+      .collection('users')
+      .where('username', '==', username)
+      .get()
+      .then((snapshot) => {
+        try {
+          this.usernameSearch =
+            snapshot.docs[0].lm.Ee.proto.mapValue.fields.username.stringValue;
+        } catch (err) {
+          this.usernameSearch = '';
+        }
+      });
+    return this.usernameSearch;
   }
 
   isInitialized() {

@@ -56,15 +56,11 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  inputBaseRoot: {
-    color: 'priamry',
-  },
-  inputBaseInput: {
-    padding: theme.spacing(1, 1, 1, 7),
-    transition: theme.transitions.create('width'),
-    width: '100%',
+  usernameSearch: {
+    padding: theme.spacing(0.5, 1, 0.5, 7),
+    width: '150px',
     [theme.breakpoints.up('md')]: {
-      width: 200,
+      width: '200px',
     },
   },
   sectionDesktop: {
@@ -88,6 +84,13 @@ function TaskBar(props) {
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  //***Temp*** get rid of later when you implement the dymanic searching with algolia
+  // const usernameSearchResults = [
+  //   { username: 'chriskots'},
+  //   { username: 'govinder' },
+  //   { username: 'chriskots1' },
+  //   { username: 'kotsopoulos' },
+  // ];
 
   if (!firebase.getCurrentUsername()) {
     //Not logged in
@@ -95,66 +98,65 @@ function TaskBar(props) {
     return null;
   }
 
-  //This function is a handler to make the scrollbar go back to the top of the screen
+  //Make the scrollbar go to the top of the screen
   const handleGoToTop = () => {
-    console.log('to top');
+    window.scrollTo(0, 0);
   };
 
-  //This function is a handler for when the user clicks the enter key to use the search functionality
+  //Search through usernames
   const handleSearch = (event) => {
     if (event.key === 'Enter') {
-      //Add search functionality here
-      console.log(`search ${searchInput} here`);
+      usernameSearch(searchInput);
     }
   };
 
-  //This function is a handler for when the user clicks the messages option
+  //Open messages
   const handleMessages = () => {
     console.log('Open messages');
   };
 
-  //This function is a handler for when the user clicks the notifications option
+  //Open notifications
   const handleNotifications = () => {
     console.log('Open notifications');
   };
 
-  //This function is a handler for when the mobile menu is closed
+  //Mobile menu is closed
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
   };
 
-  //This function is a handler for when the menu is closed
+  //Menu is closed
   const handleMenuClose = () => {
     setAnchorEl(null);
     handleMobileMenuClose();
   };
 
-  //This function is a handler for when the profile button is selected on the menu
+  //Open profile menu
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
-  //This is a handler for when the mobile menu is opened
+  //Mobile menu is opened
   const handleMobileMenuOpen = (event) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
-  //This function is a handler for when the user clicks the profile option
+  //Open users profile
   const handleProfile = () => {
     console.log('Open profile');
   };
 
-  //This function is a handler for when the user clicks the settings option
+  //Open settings
   const handleSettings = () => {
     console.log('Open settings');
   };
 
-  //This function is a handler for when the user clicks the privacy / terms option
+  //Open privacy / terms
   const handlePrivacyTerms = () => {
     console.log('Open privacy / terms');
   };
 
-  //This function is a handler for when the user clicks the logoff option
+  //Logout
   async function handleLogoff() {
     try {
       await firebase.logout();
@@ -164,6 +166,7 @@ function TaskBar(props) {
     }
   }
 
+  //Render the regular menu
   const menuId = 'primary-search-account-menu';
   const renderMenu = () => {
     return (
@@ -184,6 +187,7 @@ function TaskBar(props) {
     );
   };
 
+  //Render the mobile menu
   const mobileMenuId = 'primary-search-account-menu-mobile';
   const renderMobileMenu = () => {
     return (
@@ -244,11 +248,8 @@ function TaskBar(props) {
             </div>
             <InputBase
               placeholder="Search"
-              classes={{
-                root: classes.inputBaseRoot,
-                input: classes.inputBaseInput,
-              }}
-              inputProps={{ 'aria-label': 'search' }}
+              aria-label="search"
+              className={classes.usernameSearch}
               value={searchInput}
               onChange={(event) => {
                 setSearchInput(event.target.value);
@@ -303,6 +304,11 @@ function TaskBar(props) {
       {renderMenu()}
     </>
   );
+}
+
+async function usernameSearch(username) {
+  console.log(await firebase.searchUsernames(username));
+  return [{ username: 'hi' }, { username: 'bye' }];
 }
 
 export default withRouter(TaskBar);
