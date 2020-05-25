@@ -403,12 +403,14 @@ function Signin(props) {
       //Email already in use error
       if (error.code === 'auth/email-already-in-use') {
         setEmailCreateNewAccountError('Email already in use');
+        return;
       } else {
         setEmailCreateNewAccountError(' ');
       }
       //Invalid email error
       if (error.code === 'auth/invalid-email') {
         setEmailCreateNewAccountError('Invalid email format');
+        return;
       } else {
         setEmailCreateNewAccountError(' ');
       }

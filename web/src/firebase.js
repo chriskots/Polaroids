@@ -18,6 +18,7 @@ class Firebase {
     this.db = app.firestore();
     this.usernameMatch = false;
     this.usernameSearch = '';
+    this.allUsernames = [];
   }
 
   login(email, password) {
@@ -88,6 +89,20 @@ class Firebase {
 
   getCurrentUsername() {
     return this.auth.currentUser && this.auth.currentUser.displayName;
+  }
+
+  async getAllUsernames() {
+    await this.db
+      .collection('users')
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          this.allUsernames.push(
+            doc.lm.Ee.proto.mapValue.fields.username.stringValue
+          );
+        });
+      });
+    return this.allUsernames;
   }
 }
 
