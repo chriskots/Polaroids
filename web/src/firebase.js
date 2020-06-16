@@ -17,7 +17,7 @@ class Firebase {
     this.auth = app.auth();
     this.db = app.firestore();
     this.usernameMatch = false;
-    this.usernameSearch = '';
+    this.usernameSearch = [];
     this.allUsernames = [];
   }
 
@@ -71,12 +71,9 @@ class Firebase {
       .where('username', '==', username)
       .get()
       .then((snapshot) => {
-        try {
-          this.usernameSearch =
-            snapshot.docs[0].lm.Ee.proto.mapValue.fields.username.stringValue;
-        } catch (err) {
-          this.usernameSearch = '';
-        }
+        snapshot.forEach((doc) => {
+          this.usernameSearch.push(doc.data().username);
+        });
       });
     return this.usernameSearch;
   }
@@ -97,9 +94,7 @@ class Firebase {
       .get()
       .then((snapshot) => {
         snapshot.forEach((doc) => {
-          this.allUsernames.push(
-            doc.lm.Ee.proto.mapValue.fields.username.stringValue
-          );
+          this.allUsernames.push(doc.data().username);
         });
       });
     return this.allUsernames;

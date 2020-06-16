@@ -117,7 +117,7 @@ function TaskBar(props) {
   if (
     window.location.href.substring(
       window.location.href.lastIndexOf('/') + 1
-    ) === 'users' &&
+    ) === firebase.getCurrentUsername() &&
     userProfileOpen === false
   ) {
     setUserProfileOpen(true);
@@ -187,7 +187,7 @@ function TaskBar(props) {
 
   //Open user profile
   const handleUserProfile = () => {
-    props.history.push(`/users`);
+    props.history.push(`/${firebase.getCurrentUsername()}`);
   };
 
   //Open settings
@@ -399,6 +399,7 @@ function TaskBar(props) {
 
 async function usernameSearch(username) {
   console.log(await firebase.searchUsernames(username));
+  firebase.usernameSearch = [];
   return [{ username: 'hi' }, { username: 'bye' }];
 }
 

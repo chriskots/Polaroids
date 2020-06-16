@@ -4,6 +4,7 @@ import HomePage from './screens/HomePage';
 import LoginPage from './screens/LoginPage';
 import UsersPage from './screens/UsersPage';
 import MessagesPage from './screens/MessagesPage';
+import ErrorPage from './screens/ErrorPage';
 import { CircularProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import firebase from './firebase';
@@ -22,29 +23,33 @@ const useStyles = makeStyles((theme) => ({
 export default function Routes() {
   const classes = useStyles();
   const [firebaseInitialized, setFirebaseInitialized] = useState(false);
-  let allUsernames = [];
+  const [allUsernames, setAllUsernames] = useState([]);
 
   useEffect(() => {
     firebase.isInitialized().then((val) => {
       setFirebaseInitialized(val);
+      usernamesRetrieval();
     });
   });
 
-  if (firebaseInitialized !== false) {
-    allUsernames = usernamesRetrieval();
-
-    console.log('here');
-    console.log(allUsernames);
-  }
-
-  return firebaseInitialized !== false ? (
+  return firebaseInitialized !== false && allUsernames.length !== 0 ? (
     <Router>
       <Switch>
         <Route exact path="/" component={HomePage} />
         <Route exact path="/login" component={LoginPage} />
-        {/* profile should be the username */}
-        <Route exact path="/users/:allUsernames" component={UsersPage} />
+        {/* {allUsernames.map((username) => {
+          return (
+            <Route
+              exact
+              path="/:username"
+              key={username || 'empty'}
+              component={UsersPage}
+            />
+          );
+        })} */}
+        <Route exact path="/:allUsernames" component={UsersPage} />
         <Route exact path="/messages" component={MessagesPage} />
+        <Route component={ErrorPage} />
       </Switch>
     </Router>
   ) : (
@@ -54,7 +59,7 @@ export default function Routes() {
   );
 
   async function usernamesRetrieval() {
-    console.log(await firebase.getAllUsernames());
-    return await firebase.getAllUsernames();
+    setAllUsernames(await firebase.getAllUsernames());
+    firebase.allUsernames = [];
   }
 }

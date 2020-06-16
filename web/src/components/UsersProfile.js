@@ -9,7 +9,14 @@ function UsersProfile(props) {
     return null;
   }
 
-  return <div>users profile for {firebase.getCurrentUsername()} here</div>;
+  return (
+    <div>
+      users profile for{' '}
+      {window.location.href.substring(
+        window.location.href.lastIndexOf('/') + 1
+      )}
+    </div>
+  );
 }
 
 export default withRouter(UsersProfile);
