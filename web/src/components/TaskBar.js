@@ -88,7 +88,6 @@ const useStyles = makeStyles((theme) => ({
 
 function TaskBar(props) {
   const classes = useStyles();
-  const [searchInput, setSearchInput] = useState('');
   const [usernameSearchAnchorEl, setUsernameSearchAnchorEl] = useState(null);
   const isUsernameSearchOpen = Boolean(usernameSearchAnchorEl);
   const [messagesOpen, setMessagesOpen] = useState(false);
@@ -100,12 +99,13 @@ function TaskBar(props) {
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
   //***Temp*** get rid of later when you implement the dymanic searching with algolia
   //When the list is empty there will be no results when typing in a username
-  let usernameSearchResults = [
+  const [usernameSearchResults, setUsernameSearchResults] = [
     { id: 0, username: 'chriskots' },
     { id: 1, username: 'govinder' },
     { id: 2, username: 'chriskots1' },
     { id: 3, username: 'kotsopoulos' },
   ];
+  let searchInput = '';
 
   //User not logged in
   if (!firebase.getCurrentUsername()) {
@@ -139,12 +139,15 @@ function TaskBar(props) {
     window.scrollTo(0, 0);
   };
 
-  //Search through usernames
-  const handleSearch = (event) => {
-    if (event.key === 'Enter') {
-      usernameSearch(searchInput);
-      setUsernameSearchAnchorEl(event.currentTarget);
-    }
+  //Handle search within firebase here (when the user enters any value it should filter the usernames)
+  //***Temp*** Need to change in the future because right now the item removes from a pre-existing list (I want it to read in possible usernames (with firebase) and filter from there)
+  const setSearchInput = (input) => {
+    searchInput = input;
+    //Call usernameSearch here to get the new updated list of items from firebase
+    //EXAMPLE: setUsernameSearchResults(usernameSearch);
+    usernameSearchResults = usernameSearchResults.filter(function(item){
+      return item.username.toLowerCase().search(event.target.value.toLowerCase()) !== -1;
+    });
   };
 
   //Close username search
@@ -302,7 +305,6 @@ function TaskBar(props) {
               onChange={(event) => {
                 setSearchInput(event.target.value);
               }}
-              onKeyPress={handleSearch}
             />
             {usernameSearchResults.length !== 0 ? (
               <Popover
@@ -397,6 +399,7 @@ function TaskBar(props) {
   );
 }
 
+//Implement functionality to get usernames from firebase with this call
 async function usernameSearch(username) {
   console.log(await firebase.searchUsernames(username));
   firebase.usernameSearch = [];
