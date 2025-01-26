@@ -1,6 +1,6 @@
-import app from 'firebase/app';
-import 'firebase/auth';
-import 'firebase/firebase-firestore';
+import app from 'firebase/compat/app';
+import 'firebase/compat/auth';
+import 'firebase/compat/firestore';
 
 const config = {
   apiKey: 'AIzaSyAEMo75DYkIX1nQg8WNeoLaKLhTu3JGjuQ',
@@ -68,11 +68,12 @@ class Firebase {
   async searchUsernames(username) {
     await this.db
       .collection('users')
+      //Change this to be contains instead of ==
       .where('username', '==', username)
       .get()
       .then((snapshot) => {
         snapshot.forEach((doc) => {
-          this.usernameSearch.push(doc.data().username);
+          this.usernameSearch.push({id: 0, username: doc.data().username});
         });
       });
     return this.usernameSearch;
