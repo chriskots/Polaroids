@@ -66,6 +66,7 @@ class Firebase {
 
   //Use algolia to do fulltext searches for username searches to be dynamic to what the user types
   async searchUsernames(username) {
+    
     await this.db
       .collection('users')
       //Change this to be contains instead of ==
@@ -102,4 +103,5 @@ class Firebase {
   }
 }
 
+// eslint-disable-next-line
 export default new Firebase();

@@ -135,13 +135,11 @@ function TaskBar(props) {
     window.scrollTo(0, 0);
   };
 
-  //Handle search within firebase here (when the user enters any value it should filter the usernames)
-  //***Temp*** Need to change in the future because right now the item removes from a pre-existing list (I want it to read in possible usernames (with firebase) and filter from there)
+  //Handle search within firebase here (when the user enters any value it should filter the usernames. This will need to use algolia)
   const handleSearch = (event) => {
     if (event.key === 'Enter') {
       usernameSearch(searchInput)
       .then((r) => {
-        console.log(r);
         setUsernameSearchResults(r);
       });
       setUsernameSearchAnchorEl(event.currentTarget);
@@ -200,6 +198,11 @@ function TaskBar(props) {
   const handlePrivacyTerms = () => {
     console.log('Open privacy / terms');
   };
+
+  //Opening a profile when the user searches for someone
+  const handleProfileSelect = (username) => {
+    props.history.push('/' + username);
+  }
 
   //Logout
   async function handleLogoff() {
@@ -327,7 +330,7 @@ function TaskBar(props) {
                     return (
                       <div key={keyId}>
                         {keyId !== 0 ? <Divider /> : <></>}
-                        <ListItem button>
+                        <ListItem button onClick={() => handleProfileSelect(search.username)}>
                           <ListItemIcon>
                             <AccountCircle />
                           </ListItemIcon>
