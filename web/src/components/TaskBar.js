@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { fade, makeStyles } from '@material-ui/core/styles';
+import { alpha, makeStyles } from '@material-ui/core/styles';
 import {
   AppBar,
   Toolbar,
@@ -44,9 +44,9 @@ const useStyles = makeStyles((theme) => ({
   search: {
     position: 'relative',
     borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.black, 0.1),
+    backgroundColor: alpha(theme.palette.common.black, 0.1),
     '&:hover': {
-      backgroundColor: fade(theme.palette.common.black, 0.2),
+      backgroundColor: alpha(theme.palette.common.black, 0.2),
     },
     marginRight: theme.spacing(2),
     marginLeft: 0,
@@ -98,9 +98,6 @@ function TaskBar(props) {
   const isMenuOpen = Boolean(anchorEl);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-  //***Temp*** get rid of later when you implement the dymanic searching with algolia
-  //When the list is empty there will be no results when typing in a username
-  //{ id: 0, username: 'chriskots' },
   let [usernameSearchResults, setUsernameSearchResults] = useState([]);
 
   //User not logged in

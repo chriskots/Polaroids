@@ -64,17 +64,16 @@ class Firebase {
     return this.usernameMatch;
   }
 
-  //Use algolia to do fulltext searches for username searches to be dynamic to what the user types
+  //Temp functionality for the search functionality (use something like .where('username', '==', username) to get users to reduce the size of the collection)
   async searchUsernames(username) {
     await this.db
-      .collection('users')
-      //Change this to be contains instead of ==
-      //Find a way to use array-contains-any
-      .where('username', '==', username)
+      .collection('users')      
       .get()
       .then((snapshot) => {
         snapshot.forEach((doc) => {
-          this.usernameSearch.push({id: 0, username: doc.data().username});
+          if (doc.data().username.includes(username)) {
+            this.usernameSearch.push({id: 0, username: doc.data().username});
+          }
         });
       });
     return this.usernameSearch;

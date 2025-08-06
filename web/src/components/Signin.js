@@ -11,7 +11,7 @@ import {
 import firebase from '../firebase';
 import {
   makeStyles,
-  createMuiTheme,
+  createTheme,
   ThemeProvider,
 } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const textFieldTheme = createMuiTheme({
+const textFieldTheme = createTheme({
   palette: {
     primary: {
       main: '#171717',
