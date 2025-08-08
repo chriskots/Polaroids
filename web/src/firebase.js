@@ -19,6 +19,7 @@ class Firebase {
     this.usernameMatch = false;
     this.usernameSearch = [];
     this.allUsernames = [];
+    this.userProfile = null;
   }
 
   login(email, password) {
@@ -42,6 +43,9 @@ class Firebase {
           .doc(resp.user.uid)
           .set({
             username: username,
+            posts: [],
+            followers: [],
+            following: []
           });
       });
     return this.auth.currentUser.updateProfile({
@@ -49,6 +53,7 @@ class Firebase {
     });
   }
 
+  //Check username for creating a new user
   async checkUsername(username) {
     await this.db
       .collection('users')
@@ -67,7 +72,7 @@ class Firebase {
   //Temp functionality for the search functionality (use something like .where('username', '==', username) to get users to reduce the size of the collection)
   async searchUsernames(username) {
     await this.db
-      .collection('users')      
+      .collection('users')
       .get()
       .then((snapshot) => {
         snapshot.forEach((doc) => {
@@ -78,6 +83,26 @@ class Firebase {
       });
     return this.usernameSearch;
   }
+
+  async getProfile(username) {
+    await this.db
+      .collection('users')
+      .where('username', '==', username)
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          this.userProfile = {username: doc.data().username, posts: doc.data().posts, following: doc.data().following, followers: doc.data().followers};
+        });
+      });
+    return this.userProfile;
+  }
+
+  // create post function here
+  // add to the posts array with an object
+
+  // var today = new Date(),
+  // todaysDate = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+  // ex. {title: '', photo: '.pdf', description: '', date: todaysDate, likes: 0}
 
   isInitialized() {
     return new Promise((resolve) => {

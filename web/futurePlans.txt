@@ -1,6 +1,5 @@
 1. View password in regular text
 2. Email confirmation when signing up
 3. Change email signin to email or username signin
-4. Username search functionality using algolia (https://www.youtube.com/watch?v=3Z0V3cvgns8) (https://www.youtube.com/watch?v=vDsOQ58TrI0)
 5. Get rid of underline where the username search is
 6. Darkmode

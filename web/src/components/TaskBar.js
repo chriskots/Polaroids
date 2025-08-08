@@ -93,7 +93,6 @@ function TaskBar(props) {
   const isUsernameSearchOpen = Boolean(usernameSearchAnchorEl);
   const [messagesOpen, setMessagesOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [userProfileOpen, setUserProfileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const isMenuOpen = Boolean(anchorEl);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
@@ -104,16 +103,6 @@ function TaskBar(props) {
   if (!firebase.getCurrentUsername()) {
     props.history.push('/login');
     return null;
-  }
-
-  //User on the profile page
-  if (
-    window.location.href.substring(
-      window.location.href.lastIndexOf('/') + 1
-    ) === firebase.getCurrentUsername() &&
-    userProfileOpen === false
-  ) {
-    setUserProfileOpen(true);
   }
 
   //User on the messages page
@@ -272,7 +261,11 @@ function TaskBar(props) {
             aria-haspopup="true"
             color="inherit"
           >
-            {userProfileOpen ? <AccountCircle /> : <AccountCircleOutlined />}
+            {firebase.getCurrentUsername() === window.location.href.substring(window.location.href.lastIndexOf('/') + 1) ?
+              <AccountCircle />
+              :
+              <AccountCircleOutlined />
+            }
           </IconButton>
           <p>{firebase.getCurrentUsername()}</p>
         </MenuItem>
@@ -303,7 +296,7 @@ function TaskBar(props) {
               onChange={(event) => {
                 setSearchInput(event.target.value);
               }}
-              onKeyPress={handleSearch}
+              onKeyDown={handleSearch}
             />
             {usernameSearchResults.length !== 0 ? (
               <Popover
@@ -376,7 +369,11 @@ function TaskBar(props) {
               onClick={handleUserProfileMenuOpen}
               color="inherit"
             >
-              {userProfileOpen ? <AccountCircle /> : <AccountCircleOutlined />}
+              {firebase.getCurrentUsername() === window.location.href.substring(window.location.href.lastIndexOf('/') + 1) ?
+                <AccountCircle />
+                :
+                <AccountCircleOutlined />
+              }
             </IconButton>
           </div>
           <div className={classes.sectionMobile}>
@@ -398,7 +395,6 @@ function TaskBar(props) {
   );
 }
 
-//Implement functionality to get usernames from firebase with this call
 async function usernameSearch(username) {
   const names = await firebase.searchUsernames(username);
   firebase.usernameSearch = [];

@@ -162,7 +162,7 @@ function Signin(props) {
               onChange={(event) => {
                 setEmailInput(event.target.value);
               }}
-              onKeyPress={handleLoginEnterKey}
+              onKeyDown={handleLoginEnterKey}
             />
           </ThemeProvider>
         </div>
@@ -176,7 +176,7 @@ function Signin(props) {
               onChange={(event) => {
                 setPasswordInput(event.target.value);
               }}
-              onKeyPress={handleLoginEnterKey}
+              onKeyDown={handleLoginEnterKey}
               helperText={loginError}
             />
           </ThemeProvider>
@@ -204,7 +204,7 @@ function Signin(props) {
                   onChange={(event) => {
                     setEmailForgotPassword(event.target.value);
                   }}
-                  onKeyPress={handleForgotPasswordEnterKey}
+                  onKeyDown={handleForgotPasswordEnterKey}
                   helperText={emailForgotPasswordError}
                 />
               </ThemeProvider>
@@ -246,7 +246,7 @@ function Signin(props) {
                     onChange={(event) => {
                       setEmailCreateNewAccount(event.target.value);
                     }}
-                    onKeyPress={handleCreateNewAccountEnterKey}
+                    onKeyDown={handleCreateNewAccountEnterKey}
                     error={emailCreateNewAccountError !== ' ' ? true : false}
                     helperText={emailCreateNewAccountError}
                   />
@@ -264,7 +264,7 @@ function Signin(props) {
                       setUsernameCreateNewAccountError(' ');
                     }}
                     error={usernameCreateNewAccountError !== ' ' ? true : false}
-                    onKeyPress={handleCreateNewAccountEnterKey}
+                    onKeyDown={handleCreateNewAccountEnterKey}
                     helperText={usernameCreateNewAccountError}
                   />
                 </ThemeProvider>
@@ -288,7 +288,7 @@ function Signin(props) {
                         );
                       }
                     }}
-                    onKeyPress={handleCreateNewAccountEnterKey}
+                    onKeyDown={handleCreateNewAccountEnterKey}
                     error={createNewAccountPasswordError !== ' ' ? true : false}
                   />
                 </ThemeProvider>
@@ -308,7 +308,7 @@ function Signin(props) {
                         );
                       }
                     }}
-                    onKeyPress={handleCreateNewAccountEnterKey}
+                    onKeyDown={handleCreateNewAccountEnterKey}
                     helperText={createNewAccountPasswordError}
                     error={createNewAccountPasswordError !== ' ' ? true : false}
                   />
