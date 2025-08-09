@@ -1,4 +1,3 @@
-import React from 'react';
 import TaskBar from '../components/TaskBar';
 import Messages from '../components/Messages';
 import { makeStyles } from '@material-ui/core/styles';

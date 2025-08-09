@@ -1,7 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import firebase from '../firebase';
-import { makeStyles } from '@material-ui/core/styles';
-import { withRouter } from 'react-router-dom';
+import {
+  ThemeProvider,
+  Avatar,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from '@material-ui/core';
+import { makeStyles, createTheme } from '@material-ui/core/styles';
+import { withRouter, useLocation } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   outterBox: {
@@ -14,18 +22,37 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up('xl')]: {
       margin: '0% 40% 0%',
     },
-    padding: '15px 15px 20px',
-    boxShadow: '0px 3px 5px grey',
   },
   innerBox: {
-    margin: '10% 10% 0%',
-  }
+    width: '500px',
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    boxShadow: '0px 3px 5px grey',
+  },
+  pictureAndUsername: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    fontSize: '30px',
+  },
 }));
 
+const textFieldTheme = createTheme({
+  palette: {
+    primary: {
+      main: '#171717',
+    },
+  },
+});
 
 function UsersProfile(props) {
   const classes = useStyles();
   const [profile, setProfile] = useState(null);
+  //Use location to make sure that the page re-renders when a user goes to a profile from an obscure way (searching up and typing manually)
+  const location = useLocation();
+  const [viewFreindsMenu, setViewFriendsMenu] = useState(false);
 
   useEffect (() => {
     //User not logged in
@@ -35,7 +62,7 @@ function UsersProfile(props) {
     } else {
       try {
         //Initially get the users profile with firebase
-        getUserProfile(window.location.href.substring(window.location.href.lastIndexOf('/') + 1))
+        getUserProfile(window.location.href.substring(window.location.href.lastIndexOf('@') + 1))
         .then((r) => {
           setProfile(r);
         });
@@ -43,27 +70,65 @@ function UsersProfile(props) {
         console.error("Error fetching profile:", error);
       }
     }
-  }, [props.history]);
+  }, [props.history, location]);
 
+  const handleViewFriendsMenu = () => {
+    setViewFriendsMenu(!viewFreindsMenu);
+  };
+
+  const handleFriendSelect = (friend) => {
+    handleViewFriendsMenu();
+    props.history.push('/@' + friend);
+  };
 
   if (!profile) {
-    return <div>Loading...</div>
+    return <div className={classes.outterBox}>Loading...</div>
   }
 
   return (
     <div className={classes.outterBox}>
       {firebase.getCurrentUsername() === profile.username ?
-        <div>
-          {/* Next step is making this look nice */}
-          username: {profile.username}
+        <div className={classes.innerBox}>
+          {/* username: {profile.username}
           posts: {profile.posts}
-          followers: {profile.followers}
-          following: {profile.following}
+          friends: {profile.friends}
+          profile pic: {<img  src={profile.profilePicture} alt={'Profile'} width="150" />} */}
+          <div className={classes.pictureAndUsername}>
+            <Avatar
+              src={profile.profilePicture}
+              alt="Profile Picture"
+              className={classes.avatar}
+            />
+            <ThemeProvider theme={textFieldTheme}>
+              {profile.username}
+            </ThemeProvider>
+            <Button onClick={handleViewFriendsMenu}>Friends: {profile.friends.length}</Button>
+            <Dialog open={viewFreindsMenu} onClose={handleViewFriendsMenu}>
+              <DialogTitle>View Friends</DialogTitle>
+              <DialogContent>
+                <ThemeProvider theme={textFieldTheme}>
+                  {profile.friends.map((friend) => {
+                    const keyId = profile.friends.indexOf(friend);
+                    return (
+                      <Button key={keyId} onClick={() => handleFriendSelect(friend)}>
+                        {friend}
+                      </Button>
+                    );
+                  })}
+                </ThemeProvider>
+              </DialogContent>
+            </Dialog>
+          </div>
+          {/* Need to create objects for the posts before designing something */}
+          <div>
+            {profile.posts}
+          </div>
         </div>
         :
-        <div className={classes.innerBox}>
+        <div>
+          {/* Need to create a view others profile page */}
           users profile for{' '}
-          {window.location.href.substring(window.location.href.lastIndexOf('/') + 1)}
+          {window.location.href.substring(window.location.href.lastIndexOf('@') + 1)}
         </div>
       }
     </div>

@@ -1,4 +1,3 @@
-import React from 'react';
 import TaskBar from '../components/TaskBar';
 import ErrorMessage from '../components/ErrorMessage';
 import { makeStyles } from '@material-ui/core/styles';

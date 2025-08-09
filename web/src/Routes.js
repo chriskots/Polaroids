@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import HomePage from './screens/HomePage';
 import LoginPage from './screens/LoginPage';
@@ -37,17 +37,7 @@ export default function Routes() {
       <Switch>
         <Route exact path="/" component={HomePage} />
         <Route exact path="/login" component={LoginPage} />
-        {/* {allUsernames.map((username) => {
-          return (
-            <Route
-              exact
-              path="/:username"
-              key={username || 'empty'}
-              component={UsersPage}
-            />
-          );
-        })} */}
-        <Route exact path="/:allUsernames" component={UsersPage} />
+        <Route exact path="/@:allUsernames" component={UsersPage} />
         <Route exact path="/messages" component={MessagesPage} />
         <Route component={ErrorPage} />
       </Switch>

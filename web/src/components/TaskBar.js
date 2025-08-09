@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { alpha, makeStyles } from '@material-ui/core/styles';
 import {
   AppBar,
@@ -172,7 +172,7 @@ function TaskBar(props) {
 
   //Open user profile
   const handleUserProfile = () => {
-    props.history.push(`/${firebase.getCurrentUsername()}`);
+    props.history.push(`/@${firebase.getCurrentUsername()}`);
   };
 
   //Open settings
@@ -187,7 +187,7 @@ function TaskBar(props) {
 
   //Opening a profile when the user searches for someone
   const handleProfileSelect = (username) => {
-    props.history.push('/' + username);
+    props.history.push('/@' + username);
   }
 
   //Logout
@@ -261,7 +261,7 @@ function TaskBar(props) {
             aria-haspopup="true"
             color="inherit"
           >
-            {firebase.getCurrentUsername() === window.location.href.substring(window.location.href.lastIndexOf('/') + 1) ?
+            {firebase.getCurrentUsername() === window.location.href.substring(window.location.href.lastIndexOf('@') + 1) ?
               <AccountCircle />
               :
               <AccountCircleOutlined />
@@ -369,7 +369,7 @@ function TaskBar(props) {
               onClick={handleUserProfileMenuOpen}
               color="inherit"
             >
-              {firebase.getCurrentUsername() === window.location.href.substring(window.location.href.lastIndexOf('/') + 1) ?
+              {firebase.getCurrentUsername() === window.location.href.substring(window.location.href.lastIndexOf('@') + 1) ?
                 <AccountCircle />
                 :
                 <AccountCircleOutlined />

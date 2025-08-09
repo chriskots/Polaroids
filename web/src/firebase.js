@@ -43,9 +43,10 @@ class Firebase {
           .doc(resp.user.uid)
           .set({
             username: username,
+            //use getDownloadURL()
+            profilePicture: '',
             posts: [],
-            followers: [],
-            following: []
+            friends: []
           });
       });
     return this.auth.currentUser.updateProfile({
@@ -75,10 +76,12 @@ class Firebase {
       .collection('users')
       .get()
       .then((snapshot) => {
+        let i = 0;
         snapshot.forEach((doc) => {
           if (doc.data().username.includes(username)) {
-            this.usernameSearch.push({id: 0, username: doc.data().username});
+            this.usernameSearch.push({id: i, username: doc.data().username});
           }
+          i += 1;
         });
       });
     return this.usernameSearch;
@@ -91,7 +94,7 @@ class Firebase {
       .get()
       .then((snapshot) => {
         snapshot.forEach((doc) => {
-          this.userProfile = {username: doc.data().username, posts: doc.data().posts, following: doc.data().following, followers: doc.data().followers};
+          this.userProfile = {username: doc.data().username, profilePicture: doc.data().profilePicture, posts: doc.data().posts, friends: doc.data().friends};
         });
       });
     return this.userProfile;
