@@ -1,5 +1,11 @@
-1. View password in regular text
-2. Email confirmation when signing up
-3. Change email signin to email or username signin
-5. Get rid of underline where the username search is
-6. Darkmode
+- Make the taskbar close out of the dropdowns when selecting an item
+- For creating a new post make an animation to bring the polaroid closer to you and have fields to edit
+    - Make the photo part have a UploadFileOutlinedIcon in the middle of it
+    - Make the text have a EditOutlinedIcon beside it
+    - Flip the polaroid around to edit text on the back
+- View password in regular text
+- Email confirmation when signing up
+- Change email signin to email or username signin
+- Get rid of underline where the username search is
+- Darkmode
+- Clean up all the functions that have open/close to just ivert the status of the value

@@ -2,7 +2,7 @@ import firebase from '../firebase';
 import { withRouter } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   textAlignment: {
     textAlign: 'center',
   },
@@ -20,7 +20,7 @@ function ErrorMessage(props) {
     <div className={classes.textAlignment}>
       <h2>Sorry, this page is unavailable.</h2>
       The link you followed may be broken, or the page may have been removed.
-      Please go back to Polaroids.
+      Please go back to the Polaroids home page.
     </div>
   );
 }
