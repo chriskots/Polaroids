@@ -105,7 +105,11 @@ function UsersProfile(props) {
   const location = useLocation();
   const [viewFreindsMenu, setViewFriendsMenu] = useState(false);
   const [viewCreateNewPostMenu, setViewCreateNewPostMenu] = useState(false);
+  const [newPostImageDisplay, setNewPostImageDisplay] = useState(null);
   const [newPostImage, setNewPostImage] = useState(null);
+  const [dragOver, setDragOver] = useState(false);
+  const [loadingHandleDropImage, setLoadingHandleDropImage] = useState(false);
+  const [newPostTitle, setNewPostTitle] = useState('');
 
   useEffect (() => {
     //User not logged in
@@ -139,22 +143,35 @@ function UsersProfile(props) {
   }
   
   const handleCreateNewPost = () => {
+    setLoadingHandleDropImage(false);
     setViewCreateNewPostMenu(!viewCreateNewPostMenu);
-    //Implement creating a new post functionality here (I believe this is next thing to do to see if it works)
+    createPost();
   }
 
   const handleDrop = (e) => {
     e.preventDefault();
+    setDragOver(false);
+    setLoadingHandleDropImage(true);
+
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
-      reader.onload = () => setNewPostImage(reader.result);
+      reader.onload = () => setNewPostImageDisplay(reader.result);
+      setNewPostImage(file);
       reader.readAsDataURL(file);
+    }
+    else {
+      setLoadingHandleDropImage(false);
     }
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
+    setDragOver(true);
+  };
+
+  const handleDragOverLeave = (e) => {
+    setDragOver(false);
   };
 
   if (!profile) {
@@ -210,18 +227,33 @@ function UsersProfile(props) {
             </div>
             <Dialog open={viewCreateNewPostMenu} onClose={handleCreateNewPostMenu}>
               <div className={classes.polaroidBox}>
-                <div className={classes.innerPolaroidBox} onDrop={handleDrop} onDragOver={handleDragOver}>
-                    {newPostImage ? (
-                      <img className={classes.images} src={newPostImage} alt='Error' loading='lazy'/>
+                <div className={classes.innerPolaroidBox} style={{backgroundColor: dragOver ? '#e0f7fa' : '#f9f9f9'}} onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragOverLeave}>
+                    {newPostImageDisplay ? (
+                      <img className={classes.images} src={newPostImageDisplay} alt='Error' loading='lazy'/>
                     ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" height="80%" viewBox="0 0 24 24" width="60%">
-                        <path d="M0 0h24v24H0V0z" fill="none"/><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15.01l1.41 1.41L11 14.84V19h2v-4.16l1.59 1.59L16 15.01 12.01 11z"/>
-                      </svg>
+                      <>
+                        {loadingHandleDropImage ? (
+                          <CircularProgress color="inherit" />
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" height="80%" viewBox="0 0 24 24" width="60%">
+                            <path d="M0 0h24v24H0V0z" fill="none"/>
+                            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15.01l1.41 1.41L11 14.84V19h2v-4.16l1.59 1.59L16 15.01 12.01 11z"/>
+                          </svg>
+                        )}
+                      </>
+                      
                     )}
                 </div>
                 <h2>
                   <ThemeProvider theme={textFieldTheme}>
-                    <TextField placeholder='Create New Post' inputProps={{style: { textAlign: 'center' }}}/>
+                    <TextField
+                      placeholder='Create New Post'
+                      inputProps={{style: { textAlign: 'center' }}}
+                      value={newPostTitle}
+                      onChange={(event) => {
+                        setNewPostTitle(event.target.value);
+                      }}
+                    />
                   </ThemeProvider>
                 </h2>
               </div>
@@ -239,7 +271,6 @@ function UsersProfile(props) {
               </div>
             ))}
           </div>
-
         </Container>
         :
         <div className={classes.innerBox}>
@@ -250,6 +281,19 @@ function UsersProfile(props) {
       }
     </div>
   );
+
+  async function createPost() {
+    try {
+      await firebase.createPost(
+        newPostImage,
+        newPostTitle
+      );
+      setNewPostImage(null);
+      setNewPostTitle('');
+    } catch(error) {
+      throw(error);
+    }
+  }
 }
 
 async function getUserProfile(username) {

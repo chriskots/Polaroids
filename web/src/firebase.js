@@ -1,6 +1,8 @@
 import app from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
+import { doc, getDoc } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const config = {
   apiKey: 'AIzaSyAEMo75DYkIX1nQg8WNeoLaKLhTu3JGjuQ',
@@ -16,6 +18,7 @@ class Firebase {
     app.initializeApp(config);
     this.auth = app.auth();
     this.db = app.firestore();
+    this.storage = getStorage();
     this.usernameMatch = false;
     this.usernameSearch = [];
     this.allUsernames = [];
@@ -37,13 +40,12 @@ class Firebase {
   async register(username, email, password) {
     await this.auth
       .createUserWithEmailAndPassword(email, password)
-      .then((resp) => {
+      .then((response) => {
         return this.db
           .collection('users')
-          .doc(resp.user.uid)
+          .doc(response.user.uid)
           .set({
             username: username,
-            //use getDownloadURL()
             profilePicture: '',
             posts: [],
             friends: []
@@ -98,6 +100,29 @@ class Firebase {
         });
       });
     return this.userProfile;
+  }
+
+  // Need to figure out the "Due to recent security improvements to Cloud Storage for Firebase, you must update your project settings." problem
+  // It seems I need to re-link a bucket to my firebase account to access the GCP storage
+  async createPost(image, title) {
+    const post = {};
+    post.title = title;
+    post.date = new Date();
+    try {
+      const storageRef = ref(this.storage, `images/${image.name}`);
+      const uploadTask = await uploadBytes(storageRef, image);
+
+      const imageUrl = await getDownloadURL(uploadTask.ref);
+      post.image = imageUrl;
+    } catch(error) {
+      throw(error);
+    }
+    
+    const docSnap = await getDoc(doc(this.db, 'users', this.auth.currentUser.uid));
+    const addPost = [...docSnap.data().posts, post];
+    console.log(addPost);
+    this.db.doc('users/' + this.auth.currentUser.uid).update({ posts: addPost });
+    return false;
   }
 
   // create post function here
