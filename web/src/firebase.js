@@ -102,12 +102,17 @@ class Firebase {
     return this.userProfile;
   }
 
-  // Need to figure out the "Due to recent security improvements to Cloud Storage for Firebase, you must update your project settings." problem
-  // It seems I need to re-link a bucket to my firebase account to access the GCP storage
   async createPost(image, title) {
-    const post = {};
-    post.title = title;
-    post.date = new Date();
+    const todaysDate = new Date();
+    const postDate = todaysDate.getFullYear() + '-' + (todaysDate.getMonth() + 1) + '-' + todaysDate.getDate();
+
+    const post = {
+      title: title,
+      postDate: postDate,
+      likes: 0,
+      comments: []
+    };
+
     try {
       const storageRef = ref(this.storage, `images/${image.name}`);
       const uploadTask = await uploadBytes(storageRef, image);
@@ -120,17 +125,8 @@ class Firebase {
     
     const docSnap = await getDoc(doc(this.db, 'users', this.auth.currentUser.uid));
     const addPost = [...docSnap.data().posts, post];
-    console.log(addPost);
     this.db.doc('users/' + this.auth.currentUser.uid).update({ posts: addPost });
-    return false;
   }
-
-  // create post function here
-  // add to the posts array with an object
-
-  // var today = new Date(),
-  // todaysDate = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-  // ex. {title: '', photo: '.pdf', description: '', date: todaysDate, likes: 0}
 
   isInitialized() {
     return new Promise((resolve) => {

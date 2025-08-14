@@ -12,7 +12,13 @@ import {
   Box,
   Typography,
   TextField,
+  IconButton,
+  Badge,
 } from '@material-ui/core';
+import {
+  Chat,
+  ChatOutlined,
+} from '@material-ui/icons';
 import { makeStyles, createTheme } from '@material-ui/core/styles';
 import { withRouter, useLocation } from 'react-router-dom';
 
@@ -110,6 +116,14 @@ function UsersProfile(props) {
   const [dragOver, setDragOver] = useState(false);
   const [loadingHandleDropImage, setLoadingHandleDropImage] = useState(false);
   const [newPostTitle, setNewPostTitle] = useState('');
+  const [viewPostMenu, setViewPostMenu] = useState(false);
+  const [viewPostItem, setViewPostItem] = useState(null);
+  const [viewPostComments, setViewPostComments] = useState(false);
+  const [postMakeComment, setPostMakeComment] = useState(false);
+  // The alt='Error' could be a placeholder temporary image instead
+  const ERROR_MESSAGE = 'Error';
+  const [newPostImageError, setNewPostImageError] = useState(false);
+  const [newPostTitleError, setNewPostTitleError] = useState(' ');
 
   useEffect (() => {
     //User not logged in
@@ -143,8 +157,6 @@ function UsersProfile(props) {
   }
   
   const handleCreateNewPost = () => {
-    setLoadingHandleDropImage(false);
-    setViewCreateNewPostMenu(!viewCreateNewPostMenu);
     createPost();
   }
 
@@ -156,9 +168,11 @@ function UsersProfile(props) {
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
+      // {FuturePlans} resize image here
       reader.onload = () => setNewPostImageDisplay(reader.result);
       setNewPostImage(file);
       reader.readAsDataURL(file);
+      setNewPostImageError(false);
     }
     else {
       setLoadingHandleDropImage(false);
@@ -174,6 +188,60 @@ function UsersProfile(props) {
     setDragOver(false);
   };
 
+  const handleViewPostMenu = (item) => {
+    setViewPostMenu(!viewPostMenu);
+    setViewPostComments(false);
+    setViewPostItem(item);
+  }
+
+  const handleViewComments = () => {
+    setViewPostComments(!viewPostComments);
+  }
+
+  const handleMakeComment = () => {
+    setPostMakeComment(!postMakeComment);
+  }
+
+  const handleViewPostMenuDialog = () => {
+    return (
+      viewPostItem ? 
+      <Dialog open={viewPostMenu} onClose={handleViewPostMenu}>
+        <div className={classes.polaroidBox}>
+          {!viewPostComments ?
+          <>
+            <div className={classes.innerPolaroidBox}>
+              <img className={classes.images} src={viewPostItem.image} alt={ERROR_MESSAGE} loading='lazy'/>
+            </div>
+            <h2>{viewPostItem.title}</h2>
+          </>
+          :
+          <>
+            <div>
+              {/* Post Date: {viewPostItem.date} */}
+
+              <IconButton aria-label="comment" color="inherit" onClick={handleMakeComment}>
+                <Badge color="secondary">
+                  {postMakeComment ? 
+                    <Chat />
+                    :
+                    <ChatOutlined />
+                  }
+                </Badge>
+              </IconButton>
+            </div>
+          </>
+          }
+        </div>
+        <Button onClick={handleViewComments}>
+          Flip
+        </Button>
+        {/* Flip polaroid here to reveal comments */}
+      </Dialog>
+      :
+      <></>
+    );
+  }
+  
   if (!profile) {
     return (
     <div className={classes.outterBox}>
@@ -227,9 +295,9 @@ function UsersProfile(props) {
             </div>
             <Dialog open={viewCreateNewPostMenu} onClose={handleCreateNewPostMenu}>
               <div className={classes.polaroidBox}>
-                <div className={classes.innerPolaroidBox} style={{backgroundColor: dragOver ? '#e0f7fa' : '#f9f9f9'}} onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragOverLeave}>
+                <div className={classes.innerPolaroidBox} style={{backgroundColor: newPostImageError ? dragOver ? '#e0f7fa' : '#ffc2c2' : dragOver ? '#e0f7fa' : '#f9f9f9'}} onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragOverLeave}>
                     {newPostImageDisplay ? (
-                      <img className={classes.images} src={newPostImageDisplay} alt='Error' loading='lazy'/>
+                      <img className={classes.images} src={newPostImageDisplay} alt={ERROR_MESSAGE} loading='lazy'/>
                     ) : (
                       <>
                         {loadingHandleDropImage ? (
@@ -241,7 +309,6 @@ function UsersProfile(props) {
                           </svg>
                         )}
                       </>
-                      
                     )}
                 </div>
                 <h2>
@@ -253,6 +320,8 @@ function UsersProfile(props) {
                       onChange={(event) => {
                         setNewPostTitle(event.target.value);
                       }}
+                      error={newPostTitleError !== ' ' ? true : false}
+                      helperText={newPostTitleError}
                     />
                   </ThemeProvider>
                 </h2>
@@ -262,15 +331,16 @@ function UsersProfile(props) {
               </Button>
             </Dialog>
             {profile.posts.map((item) => (
-              <div className={classes.polaroidBox} key={profile.posts.indexOf(item)}>
+              <div className={`${classes.polaroidBox} ${classes.polaroidBoxSelectable}`} onClick={() => handleViewPostMenu(item)} key={profile.posts.indexOf(item)}>
                 <div className={classes.innerPolaroidBox}>
-                  {/* The the alt='Error' could be a placeholder temporary image instead */}
-                  <img className={classes.images} src={item} alt='Error' loading='lazy'/>
+                  <img className={classes.images} src={item.image} alt={ERROR_MESSAGE} loading='lazy'/>
                 </div>
-                <h2>Example here</h2>
+                <h2>{item.title}</h2>
               </div>
             ))}
+            
           </div>
+          {handleViewPostMenuDialog()}
         </Container>
         :
         <div className={classes.innerBox}>
@@ -283,15 +353,32 @@ function UsersProfile(props) {
   );
 
   async function createPost() {
+    if (!newPostImage) {
+      setNewPostImageError(true);
+      return;
+    }
+    if(newPostTitle === '') {
+      setNewPostTitleError('Missing Title');
+      return;
+    }
+
     try {
       await firebase.createPost(
         newPostImage,
         newPostTitle
       );
+      setNewPostImageError(false);
+      setNewPostTitleError(' ');
       setNewPostImage(null);
       setNewPostTitle('');
+      setLoadingHandleDropImage(false);
+      setViewCreateNewPostMenu(!viewCreateNewPostMenu);
+      // {futurePlans} I want to refresh the page here but it disrupts the creating of the post
+      // await props.history.go(0);
     } catch(error) {
-      throw(error);
+      if (error.message === `can't access property "name", image is null`) {
+        setNewPostImageError(true);
+      }
     }
   }
 }

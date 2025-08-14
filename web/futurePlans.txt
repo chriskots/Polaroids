@@ -1,8 +1,12 @@
+// {FuturePlans}
 - Make the taskbar close out of the dropdowns when selecting an item
+- Refresh the page after creating a new post
+    - The problem with using "await props.history.go(0);" is that it refreshes before the post can be made
 - For creating a new post make an animation to bring the polaroid closer to you and have fields to edit
     - Make the photo part have a UploadFileOutlinedIcon in the middle of it
     - Make the text have a EditOutlinedIcon beside it
     - Flip the polaroid around to edit text on the back
+- Resize the image that is uploaded so it doesn't take up too much space
 - View password in regular text
 - Email confirmation when signing up
 - Change email signin to email or username signin
