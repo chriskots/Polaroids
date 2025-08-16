@@ -2,6 +2,8 @@
 - Make the taskbar close out of the dropdowns when selecting an item
 - Refresh the page after creating a new post
     - The problem with using "await props.history.go(0);" is that it refreshes before the post can be made
+- I made the rotation of a new post lazy (I want to upload the actual rotated image for better usage but it's been tricky)
+    - Currently I have a rotation value in the firebase storage tracking it for that post
 - For creating a new post make an animation to bring the polaroid closer to you and have fields to edit
     - Make the photo part have a UploadFileOutlinedIcon in the middle of it
     - Make the text have a EditOutlinedIcon beside it

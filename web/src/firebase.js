@@ -3,6 +3,7 @@ import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import { doc, getDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { v4 as uuidv4 } from 'uuid';
 
 const config = {
   apiKey: 'AIzaSyAEMo75DYkIX1nQg8WNeoLaKLhTu3JGjuQ',
@@ -102,7 +103,7 @@ class Firebase {
     return this.userProfile;
   }
 
-  async createPost(image, title) {
+  async createPost(image, rotation, title) {
     const todaysDate = new Date();
     const postDate = todaysDate.getFullYear() + '-' + (todaysDate.getMonth() + 1) + '-' + todaysDate.getDate();
 
@@ -110,11 +111,13 @@ class Firebase {
       title: title,
       postDate: postDate,
       likes: 0,
-      comments: []
+      comments: [],
+      rotation: rotation,
     };
 
     try {
-      const storageRef = ref(this.storage, `images/${image.name}`);
+      const uniqueId = uuidv4();
+      const storageRef = ref(this.storage, `images/${uniqueId}-${image.name}`);
       const uploadTask = await uploadBytes(storageRef, image);
 
       const imageUrl = await getDownloadURL(uploadTask.ref);

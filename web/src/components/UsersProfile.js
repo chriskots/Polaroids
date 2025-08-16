@@ -16,8 +16,8 @@ import {
   Badge,
 } from '@material-ui/core';
 import {
-  Chat,
   ChatOutlined,
+  RotateRight
 } from '@material-ui/icons';
 import { makeStyles, createTheme } from '@material-ui/core/styles';
 import { withRouter, useLocation } from 'react-router-dom';
@@ -94,6 +94,11 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     objectFit: 'contain',
   },
+  fixedRotateImage: {
+    objectFit: 'cover',
+    position: 'fixed',
+    zIndex: 1,
+  },
 }));
 
 const textFieldTheme = createTheme({
@@ -115,6 +120,7 @@ function UsersProfile(props) {
   const [newPostImage, setNewPostImage] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [loadingHandleDropImage, setLoadingHandleDropImage] = useState(false);
+  const [newPostrotation, setNewPostRotation] = useState(0);
   const [newPostTitle, setNewPostTitle] = useState('');
   const [viewPostMenu, setViewPostMenu] = useState(false);
   const [viewPostItem, setViewPostItem] = useState(null);
@@ -171,6 +177,7 @@ function UsersProfile(props) {
       // {FuturePlans} resize image here
       reader.onload = () => setNewPostImageDisplay(reader.result);
       setNewPostImage(file);
+      setNewPostRotation(0);
       reader.readAsDataURL(file);
       setNewPostImageError(false);
     }
@@ -184,8 +191,15 @@ function UsersProfile(props) {
     setDragOver(true);
   };
 
-  const handleDragOverLeave = (e) => {
+  const handleDragOverLeave = () => {
     setDragOver(false);
+  };
+
+  const handleRotateImage = () => {
+    if (newPostrotation === 360) {
+      setNewPostRotation(0);
+    }
+    setNewPostRotation(newPostrotation + 90);
   };
 
   const handleViewPostMenu = (item) => {
@@ -210,32 +224,24 @@ function UsersProfile(props) {
           {!viewPostComments ?
           <>
             <div className={classes.innerPolaroidBox}>
-              <img className={classes.images} src={viewPostItem.image} alt={ERROR_MESSAGE} loading='lazy'/>
+              <img className={classes.images} style={{transform: `rotate(${viewPostItem.rotation}deg)`}} src={viewPostItem.image} alt={ERROR_MESSAGE} loading='lazy'/>
             </div>
             <h2>{viewPostItem.title}</h2>
           </>
           :
-          <>
-            <div>
-              {/* Post Date: {viewPostItem.date} */}
-
-              <IconButton aria-label="comment" color="inherit" onClick={handleMakeComment}>
-                <Badge color="secondary">
-                  {postMakeComment ? 
-                    <Chat />
-                    :
-                    <ChatOutlined />
-                  }
-                </Badge>
-              </IconButton>
-            </div>
-          </>
+          <div>
+            {/* Post Date: {viewPostItem.date} */}
+            <IconButton aria-label="comment" color="inherit" onClick={handleMakeComment}>
+              <Badge color="secondary">
+                <ChatOutlined />
+              </Badge>
+            </IconButton>
+          </div>
           }
         </div>
         <Button onClick={handleViewComments}>
           Flip
         </Button>
-        {/* Flip polaroid here to reveal comments */}
       </Dialog>
       :
       <></>
@@ -297,7 +303,16 @@ function UsersProfile(props) {
               <div className={classes.polaroidBox}>
                 <div className={classes.innerPolaroidBox} style={{backgroundColor: newPostImageError ? dragOver ? '#e0f7fa' : '#ffc2c2' : dragOver ? '#e0f7fa' : '#f9f9f9'}} onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragOverLeave}>
                     {newPostImageDisplay ? (
-                      <img className={classes.images} src={newPostImageDisplay} alt={ERROR_MESSAGE} loading='lazy'/>
+                      <>
+                        <div className={classes.fixedRotateImage}>
+                          <IconButton aria-label="comment" color="inherit" onClick={handleRotateImage}>
+                            <Badge color="secondary">
+                              <RotateRight />
+                            </Badge>
+                          </IconButton>
+                        </div>
+                        <img className={classes.images} style={{transform: `rotate(${newPostrotation}deg)`}} src={newPostImageDisplay} alt={ERROR_MESSAGE} loading='lazy'/>
+                      </>
                     ) : (
                       <>
                         {loadingHandleDropImage ? (
@@ -333,12 +348,11 @@ function UsersProfile(props) {
             {profile.posts.map((item) => (
               <div className={`${classes.polaroidBox} ${classes.polaroidBoxSelectable}`} onClick={() => handleViewPostMenu(item)} key={profile.posts.indexOf(item)}>
                 <div className={classes.innerPolaroidBox}>
-                  <img className={classes.images} src={item.image} alt={ERROR_MESSAGE} loading='lazy'/>
+                  <img className={classes.images} style={{transform: `rotate(${item.rotation}deg)`}} src={item.image} alt={ERROR_MESSAGE} loading='lazy'/>
                 </div>
                 <h2>{item.title}</h2>
               </div>
             ))}
-            
           </div>
           {handleViewPostMenuDialog()}
         </Container>
@@ -365,6 +379,7 @@ function UsersProfile(props) {
     try {
       await firebase.createPost(
         newPostImage,
+        newPostrotation,
         newPostTitle
       );
       setNewPostImageError(false);
