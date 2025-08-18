@@ -97,7 +97,7 @@ class Firebase {
       .get()
       .then((snapshot) => {
         snapshot.forEach((doc) => {
-          this.userProfile = {username: doc.data().username, profilePicture: doc.data().profilePicture, posts: doc.data().posts, friends: doc.data().friends};
+          this.userProfile = {uid: doc.id, username: doc.data().username, profilePicture: doc.data().profilePicture, posts: doc.data().posts, friends: doc.data().friends};
         });
       });
     return this.userProfile;
@@ -129,6 +129,35 @@ class Firebase {
     const docSnap = await getDoc(doc(this.db, 'users', this.auth.currentUser.uid));
     const addPost = [...docSnap.data().posts, post];
     this.db.doc('users/' + this.auth.currentUser.uid).update({ posts: addPost });
+  }
+
+  // Using Image as a unique identifier for the post that a comment is being made for
+  async makeComment(profileID, image, text) {
+    const todaysDate = new Date();
+    const commentDate = todaysDate.getFullYear() + '-' + (todaysDate.getMonth() + 1) + '-' + todaysDate.getDate() + ': ' + todaysDate.getHours() + ':' + todaysDate.getMinutes();
+
+    const comment = {
+      user: this.auth.currentUser.displayName,
+      text: text,
+      commentDate: commentDate,
+      likes: 0
+    };
+
+    const docSnap = await getDoc(doc(this.db, 'users', profileID));
+
+    let retPost = {}
+    for (let post in docSnap.data().posts) {
+      if (docSnap.data().posts[post].image === image) {
+        retPost = docSnap.data().posts[post]
+        const newComments = [...retPost.comments, comment];
+        retPost.comments = newComments;
+        // {ToDo} Find a way to just update the post that is at post index
+        console.log(retPost);
+
+      }
+    }
+
+    // Make comment functionality here
   }
 
   isInitialized() {

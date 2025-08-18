@@ -99,6 +99,15 @@ const useStyles = makeStyles((theme) => ({
     position: 'fixed',
     zIndex: 1,
   },
+  viewPostCommentsMenu: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignContent: 'space-between',
+  },
+  postComments: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
 }));
 
 const textFieldTheme = createTheme({
@@ -120,12 +129,13 @@ function UsersProfile(props) {
   const [newPostImage, setNewPostImage] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [loadingHandleDropImage, setLoadingHandleDropImage] = useState(false);
-  const [newPostrotation, setNewPostRotation] = useState(0);
+  const [newPostRotation, setNewPostRotation] = useState(0);
   const [newPostTitle, setNewPostTitle] = useState('');
   const [viewPostMenu, setViewPostMenu] = useState(false);
   const [viewPostItem, setViewPostItem] = useState(null);
   const [viewPostComments, setViewPostComments] = useState(false);
-  const [postMakeComment, setPostMakeComment] = useState(false);
+  const [postMakeComment, setPostMakeComment] = useState('');
+  const [postMakeCommentError, setPostMakeCommentError] = useState(' ');
   // The alt='Error' could be a placeholder temporary image instead
   const ERROR_MESSAGE = 'Error';
   const [newPostImageError, setNewPostImageError] = useState(false);
@@ -196,15 +206,17 @@ function UsersProfile(props) {
   };
 
   const handleRotateImage = () => {
-    if (newPostrotation === 360) {
+    if (newPostRotation >= 360) {
       setNewPostRotation(0);
     }
-    setNewPostRotation(newPostrotation + 90);
+    setNewPostRotation(newPostRotation + 90);
   };
 
   const handleViewPostMenu = (item) => {
     setViewPostMenu(!viewPostMenu);
     setViewPostComments(false);
+    setPostMakeComment('');
+    setPostMakeCommentError(' ');
     setViewPostItem(item);
   }
 
@@ -213,7 +225,7 @@ function UsersProfile(props) {
   }
 
   const handleMakeComment = () => {
-    setPostMakeComment(!postMakeComment);
+    makeComment();
   }
 
   const handleViewPostMenuDialog = () => {
@@ -229,13 +241,35 @@ function UsersProfile(props) {
             <h2>{viewPostItem.title}</h2>
           </>
           :
-          <div>
-            {/* Post Date: {viewPostItem.date} */}
-            <IconButton aria-label="comment" color="inherit" onClick={handleMakeComment}>
-              <Badge color="secondary">
-                <ChatOutlined />
-              </Badge>
-            </IconButton>
+          <div className={classes.viewPostCommentsMenu}>
+            Post Date: {viewPostItem.postDate}
+            <div className={classes.postComments}>
+              {viewPostItem.comments.map((comment) => (
+                <div key={viewPostItem.comments.indexOf(comment)}>
+                  {comment}
+                </div>
+              ))}
+            </div>
+
+            <div>
+              <ThemeProvider theme={textFieldTheme}>
+                <TextField
+                  id="comment"
+                  placeholder="Comment"
+                  value={postMakeComment}
+                  onChange={(event) => {
+                    setPostMakeComment(event.target.value);
+                  }}
+                  error={postMakeCommentError !== ' ' ? true : false}
+                  helperText={postMakeCommentError}
+                />
+              </ThemeProvider>
+              <IconButton aria-label="comment" color="inherit" onClick={handleMakeComment}>
+                <Badge color="secondary">
+                  <ChatOutlined />
+                </Badge>
+              </IconButton>
+            </div>
           </div>
           }
         </div>
@@ -311,7 +345,7 @@ function UsersProfile(props) {
                             </Badge>
                           </IconButton>
                         </div>
-                        <img className={classes.images} style={{transform: `rotate(${newPostrotation}deg)`}} src={newPostImageDisplay} alt={ERROR_MESSAGE} loading='lazy'/>
+                        <img className={classes.images} style={{transform: `rotate(${newPostRotation}deg)`}} src={newPostImageDisplay} alt={ERROR_MESSAGE} loading='lazy'/>
                       </>
                     ) : (
                       <>
@@ -379,9 +413,10 @@ function UsersProfile(props) {
     try {
       await firebase.createPost(
         newPostImage,
-        newPostrotation,
+        newPostRotation,
         newPostTitle
       );
+
       setNewPostImageError(false);
       setNewPostTitleError(' ');
       setNewPostImage(null);
@@ -395,6 +430,25 @@ function UsersProfile(props) {
         setNewPostImageError(true);
       }
     }
+  }
+
+  //Need to make this find the profile that the user is on and make a comment under their signed in name
+  async function makeComment() {
+    if (postMakeComment === '') {
+      setPostMakeCommentError('Missing Comment');
+      return;
+    }
+
+    try {
+      await firebase.makeComment(
+        profile.uid,
+        viewPostItem.image,
+        postMakeComment,
+      );
+
+      setPostMakeComment('');
+      setPostMakeCommentError(' ');
+    } catch(error) {}
   }
 }
 
