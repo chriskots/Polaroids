@@ -206,10 +206,7 @@ function UsersProfile(props) {
   };
 
   const handleRotateImage = () => {
-    if (newPostRotation >= 360) {
-      setNewPostRotation(0);
-    }
-    setNewPostRotation(newPostRotation + 90);
+    setNewPostRotation(prev => (prev + 90) % 360);
   };
 
   const handleViewPostMenu = (item) => {
@@ -246,7 +243,7 @@ function UsersProfile(props) {
             <div className={classes.postComments}>
               {viewPostItem.comments.map((comment) => (
                 <div key={viewPostItem.comments.indexOf(comment)}>
-                  {comment}
+                  {comment.user + ': ' + comment.text + ' - likes: ' + comment.likes + ' (date: ' + comment.commentDate + ')'}
                 </div>
               ))}
             </div>

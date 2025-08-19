@@ -1,7 +1,7 @@
 import app from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -126,9 +126,11 @@ class Firebase {
       throw(error);
     }
     
-    const docSnap = await getDoc(doc(this.db, 'users', this.auth.currentUser.uid));
-    const addPost = [...docSnap.data().posts, post];
-    this.db.doc('users/' + this.auth.currentUser.uid).update({ posts: addPost });
+    const userRef = doc(this.db, "users", this.auth.currentUser.uid);
+
+    await updateDoc(userRef, {
+      posts: arrayUnion(post),
+    });
   }
 
   // Using Image as a unique identifier for the post that a comment is being made for
@@ -145,19 +147,14 @@ class Firebase {
 
     const docSnap = await getDoc(doc(this.db, 'users', profileID));
 
-    let retPost = {}
-    for (let post in docSnap.data().posts) {
-      if (docSnap.data().posts[post].image === image) {
-        retPost = docSnap.data().posts[post]
-        const newComments = [...retPost.comments, comment];
-        retPost.comments = newComments;
-        // {ToDo} Find a way to just update the post that is at post index
-        console.log(retPost);
+    if (docSnap.exists()) {
+      const posts = docSnap.data().posts || [];
 
-      }
+      const allPosts = posts.map((post) => 
+        post.image === image ? {...post, comments: [...post.comments, comment]} : post
+      );
+      this.db.doc('users/' + profileID).update({ posts: allPosts });
     }
-
-    // Make comment functionality here
   }
 
   isInitialized() {
