@@ -17,7 +17,9 @@ import {
 } from '@material-ui/core';
 import {
   ChatOutlined,
-  RotateRight
+  RotateRight,
+  Favorite,
+  FavoriteBorder,
 } from '@material-ui/icons';
 import { makeStyles, createTheme } from '@material-ui/core/styles';
 import { withRouter, useLocation } from 'react-router-dom';
@@ -120,6 +122,7 @@ const textFieldTheme = createTheme({
 
 function UsersProfile(props) {
   const classes = useStyles();
+  const [reloadPageData, setReloadPageData] = useState(false);
   const [profile, setProfile] = useState(null);
   //Use location to make sure that the page re-renders when a user goes to a profile from an obscure way (searching up and typing manually)
   const location = useLocation();
@@ -154,10 +157,10 @@ function UsersProfile(props) {
           setProfile(r);
         });
       } catch (error) {
-        console.error("Error fetching profile:", error);
+        console.error("Error fetching profile: ", error);
       }
     }
-  }, [props.history, location]);
+  }, [props.history, location, reloadPageData]);
 
   const handleViewFriendsMenu = () => {
     setViewFriendsMenu(!viewFreindsMenu);
@@ -225,6 +228,10 @@ function UsersProfile(props) {
     makeComment();
   }
 
+  const handleLikeComment = (commentIndex) => {
+    likeComment(commentIndex);
+  }
+
   const handleViewPostMenuDialog = () => {
     return (
       viewPostItem ? 
@@ -243,7 +250,13 @@ function UsersProfile(props) {
             <div className={classes.postComments}>
               {viewPostItem.comments.map((comment) => (
                 <div key={viewPostItem.comments.indexOf(comment)}>
-                  {comment.user + ': ' + comment.text + ' - likes: ' + comment.likes + ' (date: ' + comment.commentDate + ')'}
+                  <div>{comment.user}</div>
+                  <div>{comment.text + ' (' + comment.commentDate + ')'}</div>
+                  <IconButton aria-label="like comment" color="inherit" onClick={() => handleLikeComment(viewPostItem.comments.indexOf(comment))}>
+                    <Badge badgeContent={comment.likes.length} color="secondary">
+                      {comment.likes.includes(firebase.getCurrentUsername()) ? <Favorite /> : <FavoriteBorder />}
+                    </Badge>
+                  </IconButton>
                 </div>
               ))}
             </div>
@@ -420,8 +433,7 @@ function UsersProfile(props) {
       setNewPostTitle('');
       setLoadingHandleDropImage(false);
       setViewCreateNewPostMenu(!viewCreateNewPostMenu);
-      // {futurePlans} I want to refresh the page here but it disrupts the creating of the post
-      // await props.history.go(0);
+      setReloadPageData(!reloadPageData);
     } catch(error) {
       if (error.message === `can't access property "name", image is null`) {
         setNewPostImageError(true);
@@ -429,7 +441,6 @@ function UsersProfile(props) {
     }
   }
 
-  //Need to make this find the profile that the user is on and make a comment under their signed in name
   async function makeComment() {
     if (postMakeComment === '') {
       setPostMakeCommentError('Missing Comment');
@@ -445,6 +456,24 @@ function UsersProfile(props) {
 
       setPostMakeComment('');
       setPostMakeCommentError(' ');
+      // Close the menu to reload the data
+      setViewPostMenu(!viewPostMenu);
+      // {futurePlans} I want to reload the page data but the problem is that viewPostItem changes on the server when getting the profile but not locally
+      setReloadPageData(!reloadPageData);
+    } catch(error) {}
+  }
+
+  async function likeComment(commentIndex) {
+    try {
+      await firebase.likeComment(
+        profile.uid,
+        profile.username,
+        viewPostItem.image,
+        commentIndex,
+      );
+      
+      setViewPostMenu(!viewPostMenu);
+      setReloadPageData(!reloadPageData);
     } catch(error) {}
   }
 }

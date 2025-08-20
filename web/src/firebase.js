@@ -142,7 +142,7 @@ class Firebase {
       user: this.auth.currentUser.displayName,
       text: text,
       commentDate: commentDate,
-      likes: 0
+      likes: []
     };
 
     const docSnap = await getDoc(doc(this.db, 'users', profileID));
@@ -153,6 +153,21 @@ class Firebase {
       const allPosts = posts.map((post) => 
         post.image === image ? {...post, comments: [...post.comments, comment]} : post
       );
+      this.db.doc('users/' + profileID).update({ posts: allPosts });
+    }
+  }
+
+  async likeComment(profileID, username, image, commentIndex) {
+    const docSnap = await getDoc(doc(this.db, 'users', profileID));
+
+    if (docSnap.exists()) {
+      const posts = docSnap.data().posts || [];
+
+      const allPosts = posts.map((post) => 
+        post.image === image ? {...post, comments: [post.comments.map((comment) => post.comments.indexOf(comment) === commentIndex ? {...comment, likes: [...comment.likes, username]} : comment)]} : post
+      );
+      // This is working but for some reason it's not updating the posts on the database
+      console.log(allPosts);
       this.db.doc('users/' + profileID).update({ posts: allPosts });
     }
   }
