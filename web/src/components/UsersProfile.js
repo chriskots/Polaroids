@@ -104,11 +104,36 @@ const useStyles = makeStyles((theme) => ({
   viewPostCommentsMenu: {
     display: 'flex',
     flexDirection: 'column',
-    alignContent: 'space-between',
+    justifyContent: 'space-between',
+    height: 350,
   },
-  postComments: {
+  postCommentsGroup: {
     display: 'flex',
     flexDirection: 'column',
+    overflow: 'auto',
+    height: 250,
+  },
+  postComment: {
+    display: 'flex',
+    flexDirection: 'column',
+    margin: '2px',
+    boxShadow: '0px 0px 1px grey',
+  },
+  commentUsername: {
+    display: 'flex',
+    marginLeft: '2px',
+  },
+  commentContent: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    overflowWrap: 'break-word',
+    wordBreak: 'break-word',
+    wordWrap: 'break-word',
+    marginLeft: '10px',
+  },
+  dateSize: {
+    fontSize: '10px',
   },
 }));
 
@@ -167,7 +192,7 @@ function UsersProfile(props) {
   };
 
   const handleFriendSelect = (friend) => {
-    handleViewFriendsMenu();
+    setViewFriendsMenu(false);
     props.history.push('/@' + friend);
   };
 
@@ -229,7 +254,7 @@ function UsersProfile(props) {
   }
 
   const handleLikeComment = (commentIndex) => {
-    likeComment(commentIndex);
+    toggleLikeComment(commentIndex);
   }
 
   const handleViewPostMenuDialog = () => {
@@ -247,16 +272,21 @@ function UsersProfile(props) {
           :
           <div className={classes.viewPostCommentsMenu}>
             Post Date: {viewPostItem.postDate}
-            <div className={classes.postComments}>
+            <div className={classes.postCommentsGroup}>
               {viewPostItem.comments.map((comment) => (
-                <div key={viewPostItem.comments.indexOf(comment)}>
-                  <div>{comment.user}</div>
-                  <div>{comment.text + ' (' + comment.commentDate + ')'}</div>
-                  <IconButton aria-label="like comment" color="inherit" onClick={() => handleLikeComment(viewPostItem.comments.indexOf(comment))}>
-                    <Badge badgeContent={comment.likes.length} color="secondary">
-                      {comment.likes.includes(firebase.getCurrentUsername()) ? <Favorite /> : <FavoriteBorder />}
-                    </Badge>
-                  </IconButton>
+                <div className={classes.postComment} key={viewPostItem.comments.indexOf(comment)}>
+                  {/* Maybe make the comment user selectable to take them to the users profile */}
+                  {/* className={classes.polaroidBoxSelectable} onClick={() => handleFriendSelect(comment.user)} */}
+                  <div className={classes.commentUsername}>{comment.user}</div>
+                  <div className={classes.commentContent}>
+                    {comment.text}
+                    <IconButton aria-label="like comment" color="inherit" onClick={() => handleLikeComment(viewPostItem.comments.indexOf(comment))}>
+                      <Badge badgeContent={comment.likes.length} color="secondary">
+                        {comment.likes.includes(firebase.getCurrentUsername()) ? <Favorite /> : <FavoriteBorder />}
+                      </Badge>
+                    </IconButton>
+                  </div>
+                  <div className={`${classes.dateSize} ${classes.commentUsername}`}>{comment.commentDate}</div>
                 </div>
               ))}
             </div>
@@ -463,9 +493,9 @@ function UsersProfile(props) {
     } catch(error) {}
   }
 
-  async function likeComment(commentIndex) {
+  async function toggleLikeComment(commentIndex) {
     try {
-      await firebase.likeComment(
+      await firebase.toggleLikeComment(
         profile.uid,
         profile.username,
         viewPostItem.image,

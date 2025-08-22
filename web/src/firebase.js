@@ -136,7 +136,8 @@ class Firebase {
   // Using Image as a unique identifier for the post that a comment is being made for
   async makeComment(profileID, image, text) {
     const todaysDate = new Date();
-    const commentDate = todaysDate.getFullYear() + '-' + (todaysDate.getMonth() + 1) + '-' + todaysDate.getDate() + ': ' + todaysDate.getHours() + ':' + todaysDate.getMinutes();
+    const formattedMinutes = todaysDate.getMinutes().toString().padStart(2, '0');
+    const commentDate = todaysDate.getFullYear() + '-' + (todaysDate.getMonth() + 1) + '-' + todaysDate.getDate() + ': ' + todaysDate.getHours() + ':' + formattedMinutes;
 
     const comment = {
       user: this.auth.currentUser.displayName,
@@ -157,17 +158,42 @@ class Firebase {
     }
   }
 
-  async likeComment(profileID, username, image, commentIndex) {
+  async toggleLikeComment(profileID, username, image, commentIndex) {
     const docSnap = await getDoc(doc(this.db, 'users', profileID));
 
     if (docSnap.exists()) {
       const posts = docSnap.data().posts || [];
 
-      const allPosts = posts.map((post) => 
-        post.image === image ? {...post, comments: [post.comments.map((comment) => post.comments.indexOf(comment) === commentIndex ? {...comment, likes: [...comment.likes, username]} : comment)]} : post
-      );
-      // This is working but for some reason it's not updating the posts on the database
-      console.log(allPosts);
+      const allPosts = posts.map((post) => {
+        if (post.image !== image) {
+          return post;
+        }
+
+        const updatedComments = post.comments.map((comment, i) => {
+          if (i === commentIndex) {
+            if (comment.likes.includes(username)) {
+              //When the user has liked the comment already and would like to remove it
+              return {
+                ...comment,
+                likes: comment.likes.filter((user) => user !== username),
+              };
+            } else {
+              // When the user has not liked the comment yet
+              return {
+                ...comment,
+                likes: [...comment.likes, username],
+              };
+            }
+          }
+          return comment;
+        });
+
+        return {
+          ...post,
+          comments: updatedComments,
+        };
+      });
+      
       this.db.doc('users/' + profileID).update({ posts: allPosts });
     }
   }
