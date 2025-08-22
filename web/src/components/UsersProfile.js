@@ -105,7 +105,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    height: 350,
+    height: 365,
   },
   postCommentsGroup: {
     display: 'flex',
@@ -151,6 +151,7 @@ function UsersProfile(props) {
   const [profile, setProfile] = useState(null);
   //Use location to make sure that the page re-renders when a user goes to a profile from an obscure way (searching up and typing manually)
   const location = useLocation();
+  const [changeProfileMenu, setChangeProfileMenu] = useState(false);
   const [viewFreindsMenu, setViewFriendsMenu] = useState(false);
   const [viewCreateNewPostMenu, setViewCreateNewPostMenu] = useState(false);
   const [newPostImageDisplay, setNewPostImageDisplay] = useState(null);
@@ -186,6 +187,10 @@ function UsersProfile(props) {
       }
     }
   }, [props.history, location, reloadPageData]);
+
+  const handleChangeProfileMenu = () => {
+    setChangeProfileMenu(!changeProfileMenu);
+  };
 
   const handleViewFriendsMenu = () => {
     setViewFriendsMenu(!viewFreindsMenu);
@@ -340,11 +345,27 @@ function UsersProfile(props) {
             <Avatar
               src={profile.profilePicture}
               alt={profile.username}
-              className={classes.avatar}
+              className={`${classes.avatar} ${classes.polaroidBoxSelectable}`}
+              onClick={() => handleChangeProfileMenu()}
             />
             <Typography className={classes.usernameStyle}>
               {profile.username}
             </Typography>
+
+            <Dialog open={changeProfileMenu} onClose={handleChangeProfileMenu}>
+              <DialogContent>
+                <Box className={classes.pictureAndUsername}>
+                  <Avatar
+                    src={profile.profilePicture}
+                    alt={profile.username}
+                    className={classes.avatar}
+                  />
+                  <Typography className={classes.usernameStyle}>
+                    {profile.username}
+                  </Typography>
+                </Box>
+              </DialogContent>
+            </Dialog>
             
             <Button onClick={handleViewFriendsMenu}>Friends: {profile.friends.length}</Button>
             <Dialog open={viewFreindsMenu} onClose={handleViewFriendsMenu}>

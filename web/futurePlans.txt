@@ -7,6 +7,7 @@
     - Make the photo part have a UploadFileOutlinedIcon in the middle of it
     - Make the text have a EditOutlinedIcon beside it
     - Flip the polaroid around to edit text on the back
+- Maybe I can find a way to use redis cache to reduce calls to firebase and speed up the project
 - Resize the image that is uploaded so it doesn't take up too much space
 - View password in regular text
 - Email confirmation when signing up

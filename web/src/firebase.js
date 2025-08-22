@@ -105,7 +105,8 @@ class Firebase {
 
   async createPost(image, rotation, title) {
     const todaysDate = new Date();
-    const postDate = todaysDate.getFullYear() + '-' + (todaysDate.getMonth() + 1) + '-' + todaysDate.getDate();
+    const formattedMinutes = todaysDate.getMinutes().toString().padStart(2, '0');
+    const postDate = todaysDate.getFullYear() + '-' + (todaysDate.getMonth() + 1) + '-' + todaysDate.getDate() + ': ' + todaysDate.getHours() + ':' + formattedMinutes;
 
     const post = {
       title: title,
