@@ -134,6 +134,26 @@ class Firebase {
     });
   }
 
+  async changeProfilePicture (image) {
+    let imageUrl = '';
+
+    try {
+      const uniqueId = uuidv4();
+      const storageRef = ref(this.storage, `profiles/${uniqueId}-${image.name}`);
+      const uploadTask = await uploadBytes(storageRef, image);
+
+      imageUrl = await getDownloadURL(uploadTask.ref);
+    } catch(error) {
+      throw(error);
+    }
+
+    const userRef = doc(this.db, "users", this.auth.currentUser.uid);
+    
+    await updateDoc(userRef, {
+      profilePicture : imageUrl,
+    });
+  }
+
   // Using Image as a unique identifier for the post that a comment is being made for
   async makeComment(profileID, image, text) {
     const todaysDate = new Date();

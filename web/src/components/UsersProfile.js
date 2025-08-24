@@ -151,15 +151,23 @@ function UsersProfile(props) {
   const [profile, setProfile] = useState(null);
   //Use location to make sure that the page re-renders when a user goes to a profile from an obscure way (searching up and typing manually)
   const location = useLocation();
-  const [changeProfileMenu, setChangeProfileMenu] = useState(false);
   const [viewFreindsMenu, setViewFriendsMenu] = useState(false);
+  // Profile Menu
+  const [changeProfilePictureMenu, setChangeProfilePictureMenu] = useState(false);
+  const [changeProfilePictureImageDisplay, setChangeProfilePictureImageDisplay] = useState(null);
+  const [changeProfilePictureImage, setChangeProfilePicutreImage] = useState(null);
+  const [changeProfilePictureImageError, setChangeProfilePicutreImageError] = useState(null);
+  // Multiple Menus
+  const [dragOver, setDragOver] = useState(false);
+  const [loadingHandleDropImage, setLoadingHandleDropImage] = useState(false);
+  // New Post Menu
   const [viewCreateNewPostMenu, setViewCreateNewPostMenu] = useState(false);
   const [newPostImageDisplay, setNewPostImageDisplay] = useState(null);
   const [newPostImage, setNewPostImage] = useState(null);
-  const [dragOver, setDragOver] = useState(false);
-  const [loadingHandleDropImage, setLoadingHandleDropImage] = useState(false);
+  const [newPostImageError, setNewPostImageError] = useState(false);
   const [newPostRotation, setNewPostRotation] = useState(0);
   const [newPostTitle, setNewPostTitle] = useState('');
+  const [newPostTitleError, setNewPostTitleError] = useState(' ');
   const [viewPostMenu, setViewPostMenu] = useState(false);
   const [viewPostItem, setViewPostItem] = useState(null);
   const [viewPostComments, setViewPostComments] = useState(false);
@@ -167,8 +175,6 @@ function UsersProfile(props) {
   const [postMakeCommentError, setPostMakeCommentError] = useState(' ');
   // The alt='Error' could be a placeholder temporary image instead
   const ERROR_MESSAGE = 'Error';
-  const [newPostImageError, setNewPostImageError] = useState(false);
-  const [newPostTitleError, setNewPostTitleError] = useState(' ');
 
   useEffect (() => {
     //User not logged in
@@ -188,9 +194,13 @@ function UsersProfile(props) {
     }
   }, [props.history, location, reloadPageData]);
 
-  const handleChangeProfileMenu = () => {
-    setChangeProfileMenu(!changeProfileMenu);
+  const handleChangeProfilePictureMenu = () => {
+    setChangeProfilePictureMenu(!changeProfilePictureMenu);
   };
+
+  const handleChangeProfilePicture = () => {
+    changeProfilePicture();
+  }
 
   const handleViewFriendsMenu = () => {
     setViewFriendsMenu(!viewFreindsMenu);
@@ -203,11 +213,11 @@ function UsersProfile(props) {
 
   const handleCreateNewPostMenu = () => {
     setViewCreateNewPostMenu(!viewCreateNewPostMenu);
-  }
+  };
   
   const handleCreateNewPost = () => {
     createPost();
-  }
+  };
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -217,12 +227,21 @@ function UsersProfile(props) {
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
-      // {FuturePlans} resize image here
-      reader.onload = () => setNewPostImageDisplay(reader.result);
-      setNewPostImage(file);
-      setNewPostRotation(0);
-      reader.readAsDataURL(file);
-      setNewPostImageError(false);
+      // Not sure if this is the best practice but I don't want to have duplicate code
+      if (e.currentTarget.classList.contains("MuiAvatar-root")) {
+        reader.onload = () => setChangeProfilePictureImageDisplay(reader.result);
+        setChangeProfilePicutreImage(file);
+        reader.readAsDataURL(file);
+        setChangeProfilePicutreImageError(false);
+      } else {
+        // {FuturePlans} resize image here
+        reader.onload = () => setNewPostImageDisplay(reader.result);
+        setNewPostImage(file);
+        setNewPostRotation(0);
+        reader.readAsDataURL(file);
+        setNewPostImageError(false);
+      }
+      setLoadingHandleDropImage(false);
     }
     else {
       setLoadingHandleDropImage(false);
@@ -248,19 +267,19 @@ function UsersProfile(props) {
     setPostMakeComment('');
     setPostMakeCommentError(' ');
     setViewPostItem(item);
-  }
+  };
 
   const handleViewComments = () => {
     setViewPostComments(!viewPostComments);
-  }
+  };
 
   const handleMakeComment = () => {
     makeComment();
-  }
+  };
 
   const handleLikeComment = (commentIndex) => {
     toggleLikeComment(commentIndex);
-  }
+  };
 
   const handleViewPostMenuDialog = () => {
     return (
@@ -325,7 +344,7 @@ function UsersProfile(props) {
       :
       <></>
     );
-  }
+  };
   
   if (!profile) {
     return (
@@ -335,7 +354,7 @@ function UsersProfile(props) {
       {/* I also need to make an "error" note for when the user they have manually typed does not exist */}
     </div>
     );
-  }
+  };
 
   return (
     <div className={classes.outterBox}>
@@ -346,23 +365,30 @@ function UsersProfile(props) {
               src={profile.profilePicture}
               alt={profile.username}
               className={`${classes.avatar} ${classes.polaroidBoxSelectable}`}
-              onClick={() => handleChangeProfileMenu()}
+              onClick={() => handleChangeProfilePictureMenu()}
             />
             <Typography className={classes.usernameStyle}>
               {profile.username}
             </Typography>
 
-            <Dialog open={changeProfileMenu} onClose={handleChangeProfileMenu}>
+            <Dialog open={changeProfilePictureMenu} onClose={handleChangeProfilePictureMenu}>
               <DialogContent>
                 <Box className={classes.pictureAndUsername}>
                   <Avatar
-                    src={profile.profilePicture}
+                    src={changeProfilePictureImageDisplay}
                     alt={profile.username}
                     className={classes.avatar}
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragOverLeave}
+                    style={{backgroundColor: changeProfilePictureImageError ? dragOver ? '#e0f7fa' : '#ffc2c2' : dragOver ? '#e0f7fa' : '#bdbdbd'}}
                   />
                   <Typography className={classes.usernameStyle}>
                     {profile.username}
                   </Typography>
+                  <Button onClick={handleChangeProfilePicture}>
+                    Change Profile Picture
+                  </Button>
                 </Box>
               </DialogContent>
             </Dialog>
@@ -389,7 +415,8 @@ function UsersProfile(props) {
               <div className={classes.innerPolaroidBox}>
                 {/* Maybe add a fun temp image here */}
                 {/* <svg xmlns="http://www.w3.org/2000/svg" height="100%" viewBox="0 0 24 24" width="100%">
-                  <path d="M0 0h24v24H0z" fill="none"/><path d="M19 7v2.99s-1.99.01-2 0V7h-3s.01-1.99 0-2h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8h-3zM5 19l3-4 2 3 3-4 4 5H5z"/>
+                  <path d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M19 7v2.99s-1.99.01-2 0V7h-3s.01-1.99 0-2h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8h-3zM5 19l3-4 2 3 3-4 4 5H5z"/>
                 </svg> */}
               </div>
               <h2>Create New Post</h2>
@@ -492,6 +519,26 @@ function UsersProfile(props) {
     }
   }
 
+  async function changeProfilePicture() {
+    if (!changeProfilePictureImage) {
+      setChangeProfilePicutreImageError(true);
+    }
+
+    try {
+      await firebase.changeProfilePicture(
+        changeProfilePictureImage,
+      );
+
+      setChangeProfilePicutreImage(null);
+      setLoadingHandleDropImage(false);
+      setChangeProfilePicutreImageError(false);
+      setChangeProfilePictureMenu(!changeProfilePictureMenu);
+      setReloadPageData(!reloadPageData);
+    } catch(error) {
+      setChangeProfilePicutreImageError(true);
+    }
+  }
+
   async function makeComment() {
     if (postMakeComment === '') {
       setPostMakeCommentError('Missing Comment');
@@ -511,7 +558,9 @@ function UsersProfile(props) {
       setViewPostMenu(!viewPostMenu);
       // {futurePlans} I want to reload the page data but the problem is that viewPostItem changes on the server when getting the profile but not locally
       setReloadPageData(!reloadPageData);
-    } catch(error) {}
+    } catch(error) {
+      setPostMakeCommentError('Error');
+    }
   }
 
   async function toggleLikeComment(commentIndex) {
@@ -532,6 +581,6 @@ function UsersProfile(props) {
 async function getUserProfile(username) {
   const user = await firebase.getProfile(username);
   return user;
-}
+};
 
 export default withRouter(UsersProfile);
