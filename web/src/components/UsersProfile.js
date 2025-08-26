@@ -23,6 +23,7 @@ import {
 } from '@material-ui/icons';
 import { makeStyles, createTheme } from '@material-ui/core/styles';
 import { withRouter, useLocation } from 'react-router-dom';
+import { Alert } from '@material-ui/lab';
 
 const useStyles = makeStyles((theme) => ({
   outterBox: {
@@ -152,6 +153,7 @@ function UsersProfile(props) {
   //Use location to make sure that the page re-renders when a user goes to a profile from an obscure way (searching up and typing manually)
   const location = useLocation();
   const [viewFreindsMenu, setViewFriendsMenu] = useState(false);
+  const [friendRequestSent, setFriendRequestSent] = useState(false);
   // Profile Menu
   const [changeProfilePictureMenu, setChangeProfilePictureMenu] = useState(false);
   const [changeProfilePictureImageDisplay, setChangeProfilePictureImageDisplay] = useState(null);
@@ -204,6 +206,10 @@ function UsersProfile(props) {
 
   const handleViewFriendsMenu = () => {
     setViewFriendsMenu(!viewFreindsMenu);
+  };
+
+  const handleAddFriend = () => {
+    addFriend();
   };
 
   const handleFriendSelect = (friend) => {
@@ -397,14 +403,14 @@ function UsersProfile(props) {
             <Dialog open={viewFreindsMenu} onClose={handleViewFriendsMenu}>
               <DialogTitle>View Friends</DialogTitle>
               <DialogContent className={classes.friendList}>
-                  {profile.friends.map((friend) => {
-                    const keyId = profile.friends.indexOf(friend);
-                    return (
-                      <Button key={keyId} onClick={() => handleFriendSelect(friend)}>
-                        {friend}
-                      </Button>
-                    );
-                  })}
+                {profile.friends.map((friend) => {
+                  const keyId = profile.friends.indexOf(friend);
+                  return (
+                    <Button key={keyId} onClick={() => handleFriendSelect(friend)}>
+                      {friend}
+                    </Button>
+                  );
+                })}
               </DialogContent>
             </Dialog>
           </Box>
@@ -479,14 +485,81 @@ function UsersProfile(props) {
           {handleViewPostMenuDialog()}
         </Container>
         :
-        <div className={classes.innerBox}>
+        <Container className={classes.innerBox}>
           {/* Make a user page for an existing user when you come up with a final design */}
           {/* It should have a Add Friend button instead of friends button if you are not friends with them already use PersonAddIcon in MUI*/}
           {/* It should also not allow you to see any posts (with a lock icon) if you are not friends with them */}
-        </div>
+          <Box className={classes.pictureAndUsername}>
+            <Avatar
+              src={profile.profilePicture}
+              alt={profile.username}
+              className={`${classes.avatar} ${classes.polaroidBoxSelectable}`}
+              onClick={() => handleChangeProfilePictureMenu()}
+            />
+            <Typography className={classes.usernameStyle}>
+              {profile.username}
+            </Typography>
+            {profile.friends.includes(firebase.getCurrentUsername()) ? 
+              <>
+                <Button onClick={handleViewFriendsMenu}>Friends: {profile.friends.length}</Button>
+                <Dialog open={viewFreindsMenu} onClose={handleViewFriendsMenu}>
+                  <DialogTitle>View Friends</DialogTitle>
+                  <DialogContent className={classes.friendList}>
+                    {profile.friends.map((friend) => {
+                      const keyId = profile.friends.indexOf(friend);
+                      return (
+                        <Button key={keyId} onClick={() => handleFriendSelect(friend)}>
+                          {friend}
+                        </Button>
+                      );
+                    })}
+                  </DialogContent>
+                </Dialog>
+                {/* Posts Section */}
+                <div className={classes.polaroidGroups}>
+                  {profile.posts.map((item) => (
+                    <div className={`${classes.polaroidBox} ${classes.polaroidBoxSelectable}`} onClick={() => handleViewPostMenu(item)} key={profile.posts.indexOf(item)}>
+                      <div className={classes.innerPolaroidBox}>
+                        <img className={classes.images} style={{transform: `rotate(${item.rotation}deg)`}} src={item.image} alt={ERROR_MESSAGE} loading='lazy'/>
+                      </div>
+                      <h2>{item.title}</h2>
+                    </div>
+                  ))}
+                </div>
+                {handleViewPostMenuDialog()}
+              </>
+            :
+              <>
+                {profile.friendRequests.includes(firebase.getCurrentUsername()) || friendRequestSent ? 
+                  <>
+                    <Alert severity="success">
+                      Friend Request Sent!
+                    </Alert>
+                  </>
+                  :
+                    <Button onClick={handleAddFriend}>Add Friend</Button>
+                }
+                
+              </>
+            }
+            
+          </Box>
+        </Container>
       }
     </div>
   );
+
+  async function addFriend() {
+    try {
+      await firebase.sendFriendRequest(
+        profile.uid,
+        profile.username
+      );
+
+      setFriendRequestSent(true);
+      setReloadPageData(!reloadPageData);
+    } catch (error) {}
+  }
 
   async function createPost() {
     if (!newPostImage) {

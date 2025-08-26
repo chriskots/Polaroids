@@ -1,7 +1,7 @@
 import app from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
-import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -49,7 +49,8 @@ class Firebase {
             username: username,
             profilePicture: '',
             posts: [],
-            friends: []
+            friends: [],
+            friendRequests: []
           });
       });
     return this.auth.currentUser.updateProfile({
@@ -82,7 +83,7 @@ class Firebase {
         let i = 0;
         snapshot.forEach((doc) => {
           if (doc.data().username.includes(username)) {
-            this.usernameSearch.push({id: i, username: doc.data().username});
+            this.usernameSearch.push({id: i, username: doc.data().username, profilePicture: doc.data().profilePicture});
           }
           i += 1;
         });
@@ -97,10 +98,30 @@ class Firebase {
       .get()
       .then((snapshot) => {
         snapshot.forEach((doc) => {
-          this.userProfile = {uid: doc.id, username: doc.data().username, profilePicture: doc.data().profilePicture, posts: doc.data().posts, friends: doc.data().friends};
+          this.userProfile = {uid: doc.id, username: doc.data().username, profilePicture: doc.data().profilePicture, posts: doc.data().posts, friends: doc.data().friends, friendRequests: doc.data().friendRequests};
         });
       });
     return this.userProfile;
+  }
+
+  async sendFriendRequest(uid, username) {
+    const userRef = doc(this.db, 'users', this.auth.currentUser.uid);
+    const userSnap = await getDoc(userRef);
+    const friendRef = doc(this.db, 'users', uid);
+
+    if (userSnap.data().friendRequests.includes(username)) {
+      await updateDoc(friendRef, {
+        friends: arrayUnion(this.auth.currentUser.displayName),
+      });
+      await updateDoc(userRef, {
+        friends: arrayUnion(username),
+        friendRequests: arrayRemove(username),
+      });
+    } else {
+      await updateDoc(friendRef, {
+        friendRequests: arrayUnion(this.auth.currentUser.displayName),
+      });
+    }
   }
 
   async createPost(image, rotation, title) {
@@ -127,7 +148,7 @@ class Firebase {
       throw(error);
     }
     
-    const userRef = doc(this.db, "users", this.auth.currentUser.uid);
+    const userRef = doc(this.db, 'users', this.auth.currentUser.uid);
 
     await updateDoc(userRef, {
       posts: arrayUnion(post),
@@ -147,7 +168,7 @@ class Firebase {
       throw(error);
     }
 
-    const userRef = doc(this.db, "users", this.auth.currentUser.uid);
+    const userRef = doc(this.db, 'users', this.auth.currentUser.uid);
     
     await updateDoc(userRef, {
       profilePicture : imageUrl,

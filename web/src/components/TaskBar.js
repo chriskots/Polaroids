@@ -15,6 +15,7 @@ import {
   MenuItem,
   IconButton,
   Badge,
+  Avatar,
 } from '@material-ui/core';
 import {
   Search,
@@ -322,7 +323,7 @@ function TaskBar(props) {
                         {keyId !== 0 ? <Divider /> : <></>}
                         <ListItem button onClick={() => handleProfileSelect(search.username)}>
                           <ListItemIcon>
-                            <AccountCircle />
+                            <Avatar src={search.profilePicture} alt={search.username}/>
                           </ListItemIcon>
                           <ListItemText
                             primary={search.username}
