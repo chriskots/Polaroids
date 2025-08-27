@@ -58,7 +58,6 @@ export default function UserPage(props) {
   const updatePageData = () => {
     setReloadPageData(!reloadPageData);
   }
-  // console.log(firebase.getCurrentUsername());
 
   return (
     <div className={classes.taskBarSpacing}>

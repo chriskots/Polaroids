@@ -1,14 +1,8 @@
-import firebase from '../firebase';
+// import firebase from '../firebase';
 import { withRouter } from 'react-router-dom';
 
-function Profile(props) {
-  //User not logged in
-  if (!firebase.getCurrentUsername()) {
-    props.history.push('/login');
-    return null;
-  }
-
+function Messages(props) {
   return <div>messages here</div>;
 }
 
-export default withRouter(Profile);
+export default withRouter(Messages);

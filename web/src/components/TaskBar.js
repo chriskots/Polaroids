@@ -94,7 +94,8 @@ function TaskBar(props) {
   const [usernameSearchAnchorEl, setUsernameSearchAnchorEl] = useState(null);
   const isUsernameSearchOpen = Boolean(usernameSearchAnchorEl);
   const [messagesOpen, setMessagesOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notificationsOpenAnchorEl, setNotificationsOpenAnchorEl] = useState(null);
+  const isNotificationsOpen = Boolean(notificationsOpenAnchorEl);
   const [anchorEl, setAnchorEl] = useState(null);
   const isMenuOpen = Boolean(anchorEl);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
@@ -140,9 +141,13 @@ function TaskBar(props) {
   };
 
   //Open notifications
-  const handleNotifications = () => {
-    setNotificationsOpen(!notificationsOpen);
-    console.log('Open notifications');
+  const handleNotifications = (event) => {
+    setNotificationsOpenAnchorEl(event.currentTarget);
+  };
+
+  //Notifications Menu is closed
+  const handleNotificationsMenuClose = () => {
+    setNotificationsOpenAnchorEl(null);
   };
 
   //Mobile menu is closed
@@ -217,6 +222,30 @@ function TaskBar(props) {
     );
   };
 
+  //Render the notifications menu
+  const notificationsMenuId = 'primary-search-account-menu';
+  const renderNotificationsMenu = () => {
+    return (
+      <Menu
+        anchorEl={notificationsOpenAnchorEl}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        id={notificationsMenuId}
+        keepMounted
+        getContentAnchorEl={null}
+        open={isNotificationsOpen}
+        onClose={handleNotificationsMenuClose}
+      >
+        {/* {FuturePlans} make these selectable to go to the notificaiton in question (go to the comment or post) */}
+        {/* Another option is to remove the item when you select it but you can figure this out later */}
+        {userProfile && userProfile.notifications.length > 0 ? 
+          userProfile.notifications.map((notification) => <MenuItem key={userProfile.notifications.indexOf(notification)}>{notification}</MenuItem>)
+        :
+          <MenuItem disabled>Empty</MenuItem>
+        }
+      </Menu>
+    );
+  };
+
   //Render the mobile menu
   const mobileMenuId = 'primary-search-account-menu-mobile';
   const renderMobileMenu = () => {
@@ -232,7 +261,7 @@ function TaskBar(props) {
       >
         <MenuItem onClick={handleMessages}>
           <IconButton aria-label="messages" color="inherit">
-            <Badge badgeContent={4} color="secondary">
+            <Badge badgeContent={userProfile ? userProfile.newMessages.length : 0} color="secondary">
               {messagesOpen ? <Chat /> : <ChatOutlined />}
             </Badge>
           </IconButton>
@@ -240,8 +269,8 @@ function TaskBar(props) {
         </MenuItem>
         <MenuItem onClick={handleNotifications}>
           <IconButton aria-label="notifications" color="inherit">
-            <Badge badgeContent={11} color="secondary">
-              {notificationsOpen ? (
+            <Badge badgeContent={userProfile ? userProfile.notifications.length : 0} color="secondary">
+              {notificationsOpenAnchorEl ? (
                 <Notifications />
               ) : (
                 <NotificationsNoneOutlined />
@@ -350,7 +379,7 @@ function TaskBar(props) {
               onClick={handleNotifications}
             >
               <Badge badgeContent={userProfile ? userProfile.notifications.length : 0} color="secondary">
-                {notificationsOpen ? (
+                {notificationsOpenAnchorEl ? (
                   <Notifications />
                 ) : (
                   <NotificationsNoneOutlined />
@@ -387,6 +416,7 @@ function TaskBar(props) {
       </AppBar>
       {renderMobileMenu()}
       {renderMenu()}
+      {renderNotificationsMenu()}
     </>
   );
 }

@@ -1,5 +1,8 @@
+import { useState, useEffect } from 'react';
+import firebase from '../firebase';
 import TaskBar from '../components/TaskBar';
 import ErrorMessage from '../components/ErrorMessage';
+import { useLocation } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
@@ -22,12 +25,39 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ErrorPage() {
+export default function ErrorPage(props) {
   const classes = useStyles();
+  //Use location to make sure that the page re-renders when a user goes to a profile from an obscure way (searching up and typing manually)
+  const location = useLocation();
+  const [userProfile, setUserProfile] = useState(null);
+
+  useEffect (() => {
+    //User not logged in
+    if (!firebase.getCurrentUsername()) {
+      props.history.push('/login');
+      return null;
+    } else {
+      try {
+        //Initially get the users profile with firebase
+        getUserProfile(firebase.getCurrentUsername())
+        .then((resultUser) => {
+          setUserProfile(resultUser);
+        });
+      } catch (error) {
+        console.error("Error fetching profile: ", error);
+      }
+    }
+  }, [props.history, location]);
+
   return (
     <div className={classes.taskBarSpacing}>
-      <TaskBar />
+      <TaskBar userProfile={userProfile}/>
       <ErrorMessage />
     </div>
   );
 }
+
+async function getUserProfile(username) {
+  const user = await firebase.getProfile(username);
+  return user;
+};

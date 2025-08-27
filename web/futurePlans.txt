@@ -5,6 +5,7 @@
     - Currently I have a rotation value in the firebase storage tracking it for that post
 - Make a add back button for adding a friend if they have already sent you a friend request
 - Figure out an efficient way to send notifications for when you post something
+- Make it so when you click on a notification it goes to that item (comment or new post)
 - For creating a new post make an animation to bring the polaroid closer to you and have fields to edit
     - Make the photo part have a UploadFileOutlinedIcon in the middle of it
     - Make the text have a EditOutlinedIcon beside it
