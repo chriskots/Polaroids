@@ -89,6 +89,7 @@ const useStyles = makeStyles((theme) => ({
 
 function TaskBar(props) {
   const classes = useStyles();
+  const userProfile = props.userProfile;
   const [searchInput, setSearchInput] = useState('');
   const [usernameSearchAnchorEl, setUsernameSearchAnchorEl] = useState(null);
   const isUsernameSearchOpen = Boolean(usernameSearchAnchorEl);
@@ -98,13 +99,7 @@ function TaskBar(props) {
   const isMenuOpen = Boolean(anchorEl);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-  let [usernameSearchResults, setUsernameSearchResults] = useState([]);
-
-  //User not logged in
-  if (!firebase.getCurrentUsername()) {
-    props.history.push('/login');
-    return null;
-  }
+  const [usernameSearchResults, setUsernameSearchResults] = useState([]);
 
   //User on the messages page
   if (
@@ -345,7 +340,7 @@ function TaskBar(props) {
               color="inherit"
               onClick={handleMessages}
             >
-              <Badge badgeContent={4} color="secondary">
+              <Badge badgeContent={userProfile ? userProfile.newMessages.length : 0} color="secondary">
                 {messagesOpen ? <Chat /> : <ChatOutlined />}
               </Badge>
             </IconButton>
@@ -354,7 +349,7 @@ function TaskBar(props) {
               color="inherit"
               onClick={handleNotifications}
             >
-              <Badge badgeContent={17} color="secondary">
+              <Badge badgeContent={userProfile ? userProfile.notifications.length : 0} color="secondary">
                 {notificationsOpen ? (
                   <Notifications />
                 ) : (

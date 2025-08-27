@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import firebase from '../firebase';
 import {
   ThemeProvider,
@@ -22,7 +22,7 @@ import {
   FavoriteBorder,
 } from '@material-ui/icons';
 import { makeStyles, createTheme } from '@material-ui/core/styles';
-import { withRouter, useLocation } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import { Alert } from '@material-ui/lab';
 
 const useStyles = makeStyles((theme) => ({
@@ -148,10 +148,7 @@ const textFieldTheme = createTheme({
 
 function UsersProfile(props) {
   const classes = useStyles();
-  const [reloadPageData, setReloadPageData] = useState(false);
-  const [profile, setProfile] = useState(null);
-  //Use location to make sure that the page re-renders when a user goes to a profile from an obscure way (searching up and typing manually)
-  const location = useLocation();
+  const profile = props.profile;
   const [viewFreindsMenu, setViewFriendsMenu] = useState(false);
   const [friendRequestSent, setFriendRequestSent] = useState(false);
   // Profile Menu
@@ -178,23 +175,6 @@ function UsersProfile(props) {
   // The alt='Error' could be a placeholder temporary image instead
   const ERROR_MESSAGE = 'Error';
 
-  useEffect (() => {
-    //User not logged in
-    if (!firebase.getCurrentUsername()) {
-      props.history.push('/login');
-      return null;
-    } else {
-      try {
-        //Initially get the users profile with firebase
-        getUserProfile(window.location.href.substring(window.location.href.lastIndexOf('@') + 1))
-        .then((r) => {
-          setProfile(r);
-        });
-      } catch (error) {
-        console.error("Error fetching profile: ", error);
-      }
-    }
-  }, [props.history, location, reloadPageData]);
 
   const handleChangeProfilePictureMenu = () => {
     setChangeProfilePictureMenu(!changeProfilePictureMenu);
@@ -537,12 +517,12 @@ function UsersProfile(props) {
                     </Alert>
                   </>
                   :
-                    <Button onClick={handleAddFriend}>Add Friend</Button>
+                    <Button onClick={handleAddFriend}>
+                      Add Friend
+                    </Button>
                 }
-                
               </>
             }
-            
           </Box>
         </Container>
       }
@@ -557,7 +537,7 @@ function UsersProfile(props) {
       );
 
       setFriendRequestSent(true);
-      setReloadPageData(!reloadPageData);
+      props.updatePageData();
     } catch (error) {}
   }
 
@@ -584,7 +564,7 @@ function UsersProfile(props) {
       setNewPostTitle('');
       setLoadingHandleDropImage(false);
       setViewCreateNewPostMenu(!viewCreateNewPostMenu);
-      setReloadPageData(!reloadPageData);
+      props.updatePageData();
     } catch(error) {
       if (error.message === `can't access property "name", image is null`) {
         setNewPostImageError(true);
@@ -606,7 +586,7 @@ function UsersProfile(props) {
       setLoadingHandleDropImage(false);
       setChangeProfilePicutreImageError(false);
       setChangeProfilePictureMenu(!changeProfilePictureMenu);
-      setReloadPageData(!reloadPageData);
+      props.updatePageData();
     } catch(error) {
       setChangeProfilePicutreImageError(true);
     }
@@ -630,7 +610,7 @@ function UsersProfile(props) {
       // Close the menu to reload the data
       setViewPostMenu(!viewPostMenu);
       // {futurePlans} I want to reload the page data but the problem is that viewPostItem changes on the server when getting the profile but not locally
-      setReloadPageData(!reloadPageData);
+      props.updatePageData();
     } catch(error) {
       setPostMakeCommentError('Error');
     }
@@ -646,14 +626,9 @@ function UsersProfile(props) {
       );
       
       setViewPostMenu(!viewPostMenu);
-      setReloadPageData(!reloadPageData);
+      props.updatePageData();
     } catch(error) {}
   }
 }
-
-async function getUserProfile(username) {
-  const user = await firebase.getProfile(username);
-  return user;
-};
 
 export default withRouter(UsersProfile);

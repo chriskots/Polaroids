@@ -1,5 +1,8 @@
+import { useState, useEffect } from 'react';
+import firebase from '../firebase';
 import TaskBar from '../components/TaskBar';
 import UsersProfile from '../components/UsersProfile';
+import { useLocation } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
@@ -22,12 +25,50 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function UserPage() {
+export default function UserPage(props) {
   const classes = useStyles();
+  //Use location to make sure that the page re-renders when a user goes to a profile from an obscure way (searching up and typing manually)
+  const location = useLocation();
+  const [viewProfile, setViewProfile] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
+  const [reloadPageData, setReloadPageData] = useState(false);
+
+  useEffect (() => {
+    //User not logged in
+    if (!firebase.getCurrentUsername()) {
+      props.history.push('/login');
+      return null;
+    } else {
+      try {
+        //Initially get the users profile with firebase
+        getUserProfile(window.location.href.substring(window.location.href.lastIndexOf('@') + 1))
+        .then((resultView) => {
+          getUserProfile(firebase.getCurrentUsername())
+          .then((resultUser) => {
+            setUserProfile(resultUser);
+          });
+          setViewProfile(resultView);
+        });
+      } catch (error) {
+        console.error("Error fetching profile: ", error);
+      }
+    }
+  }, [props.history, location, reloadPageData]);
+
+  const updatePageData = () => {
+    setReloadPageData(!reloadPageData);
+  }
+  // console.log(firebase.getCurrentUsername());
+
   return (
     <div className={classes.taskBarSpacing}>
-      <TaskBar />
-      <UsersProfile />
+      <TaskBar userProfile={userProfile}/>
+      <UsersProfile profile={viewProfile} updatePageData={updatePageData}/>
     </div>
   );
 }
+
+async function getUserProfile(username) {
+  const user = await firebase.getProfile(username);
+  return user;
+};

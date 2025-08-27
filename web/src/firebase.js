@@ -49,6 +49,9 @@ class Firebase {
             username: username,
             profilePicture: '',
             posts: [],
+            messages: [],
+            newMessages: [],
+            notifications: [],
             friends: [],
             friendRequests: []
           });
@@ -98,7 +101,17 @@ class Firebase {
       .get()
       .then((snapshot) => {
         snapshot.forEach((doc) => {
-          this.userProfile = {uid: doc.id, username: doc.data().username, profilePicture: doc.data().profilePicture, posts: doc.data().posts, friends: doc.data().friends, friendRequests: doc.data().friendRequests};
+          this.userProfile = {
+            uid: doc.id,
+            username: doc.data().username,
+            profilePicture: doc.data().profilePicture,
+            posts: doc.data().posts,
+            newMessages: doc.data().newMessages,
+            messages: doc.data().messages,
+            notifications: doc.data().notifications,
+            friends: doc.data().friends,
+            friendRequests: doc.data().friendRequests
+          };
         });
       });
     return this.userProfile;
@@ -112,18 +125,22 @@ class Firebase {
     if (userSnap.data().friendRequests.includes(username)) {
       await updateDoc(friendRef, {
         friends: arrayUnion(this.auth.currentUser.displayName),
+        notifications: arrayUnion('Friend request accepted from: ' + this.auth.currentUser.displayName),
       });
       await updateDoc(userRef, {
         friends: arrayUnion(username),
         friendRequests: arrayRemove(username),
+        notifications: arrayUnion('Added Friend: ' + username),
       });
     } else {
       await updateDoc(friendRef, {
         friendRequests: arrayUnion(this.auth.currentUser.displayName),
+        notifications: arrayUnion('Friend request from: ' + this.auth.currentUser.displayName),
       });
     }
   }
 
+  // {FuturePlans} make an efficient way to send notifications to your friends that you posted
   async createPost(image, rotation, title) {
     const todaysDate = new Date();
     const formattedMinutes = todaysDate.getMinutes().toString().padStart(2, '0');
@@ -155,7 +172,7 @@ class Firebase {
     });
   }
 
-  async changeProfilePicture (image) {
+  async changeProfilePicture(image) {
     let imageUrl = '';
 
     try {
@@ -188,7 +205,8 @@ class Firebase {
       likes: []
     };
 
-    const docSnap = await getDoc(doc(this.db, 'users', profileID));
+    const user = doc(this.db, 'users', profileID);
+    const docSnap = await getDoc(user);
 
     if (docSnap.exists()) {
       const posts = docSnap.data().posts || [];
@@ -197,6 +215,9 @@ class Firebase {
         post.image === image ? {...post, comments: [...post.comments, comment]} : post
       );
       this.db.doc('users/' + profileID).update({ posts: allPosts });
+      await updateDoc(user, {
+        notifications: arrayUnion('Comment on your post by: ' + this.auth.currentUser.displayName),
+      });
     }
   }
 
