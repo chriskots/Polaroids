@@ -221,8 +221,9 @@ class Firebase {
     }
   }
 
-  async toggleLikeComment(profileID, username, image, commentIndex) {
+  async toggleLikeComment(profileID, image, commentIndex) {
     const docSnap = await getDoc(doc(this.db, 'users', profileID));
+    const username = this.getCurrentUsername();
 
     if (docSnap.exists()) {
       const posts = docSnap.data().posts || [];

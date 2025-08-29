@@ -255,6 +255,10 @@ function UsersProfile(props) {
     setViewPostItem(item);
   };
 
+  const handleLikePost = (item) => {
+    console.log('liked', item);
+  }
+
   const handleViewComments = () => {
     setViewPostComments(!viewPostComments);
   };
@@ -274,7 +278,7 @@ function UsersProfile(props) {
         <div className={classes.polaroidBox}>
           {!viewPostComments ?
           <>
-            <div className={classes.innerPolaroidBox}>
+            <div className={classes.innerPolaroidBox} onDoubleClick={() => handleLikePost(viewPostItem)}>
               <img className={classes.images} style={{transform: `rotate(${viewPostItem.rotation}deg)`}} src={viewPostItem.image} alt={ERROR_MESSAGE} loading='lazy'/>
             </div>
             <h2>{viewPostItem.title}</h2>
@@ -592,6 +596,8 @@ function UsersProfile(props) {
     }
   }
 
+  // async function toggleLikePost(post) {}
+
   async function makeComment() {
     if (postMakeComment === '') {
       setPostMakeCommentError('Missing Comment');
@@ -620,7 +626,6 @@ function UsersProfile(props) {
     try {
       await firebase.toggleLikeComment(
         profile.uid,
-        profile.username,
         viewPostItem.image,
         commentIndex,
       );

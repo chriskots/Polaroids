@@ -30,6 +30,7 @@ export default function HomePage(props) {
     //Use location to make sure that the page re-renders when a user goes to a profile from an obscure way (searching up and typing manually)
     const location = useLocation();
     const [userProfile, setUserProfile] = useState(null);
+    const [friendsPosts, setFriendsPosts] = useState([]);
     const [reloadPageData, setReloadPageData] = useState(false);
     
   useEffect (() => {
@@ -43,6 +44,13 @@ export default function HomePage(props) {
         getUserProfile(firebase.getCurrentUsername())
         .then((resultUser) => {
           setUserProfile(resultUser);
+          //Initially get the users friends profiles with firebase
+          for (const friend of resultUser.friends) {
+            getUserProfile(friend)
+            .then((friendProfile) => {
+              setFriendsPosts(prevFriendsPosts => [...prevFriendsPosts, {uid: friendProfile.uid, posts: friendProfile.posts}]);
+            });
+          }
         });
       } catch (error) {
         console.error("Error fetching profile: ", error);
@@ -57,7 +65,7 @@ export default function HomePage(props) {
   return (
     <div className={classes.taskBarSpacing}>
       <TaskBar userProfile={userProfile}/>
-      <Home updatePageData={updatePageData}/>
+      <Home userProfile={userProfile} friendsPosts={friendsPosts} updatePageData={updatePageData}/>
     </div>
   );
 }
