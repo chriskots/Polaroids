@@ -167,6 +167,7 @@ function UsersProfile(props) {
   const [newPostRotation, setNewPostRotation] = useState(0);
   const [newPostTitle, setNewPostTitle] = useState('');
   const [newPostTitleError, setNewPostTitleError] = useState(' ');
+  // View Post Menu
   const [viewPostMenu, setViewPostMenu] = useState(false);
   const [viewPostItem, setViewPostItem] = useState(null);
   const [viewPostComments, setViewPostComments] = useState(false);
@@ -174,7 +175,6 @@ function UsersProfile(props) {
   const [postMakeCommentError, setPostMakeCommentError] = useState(' ');
   // The alt='Error' could be a placeholder temporary image instead
   const ERROR_MESSAGE = 'Error';
-
 
   const handleChangeProfilePictureMenu = () => {
     setChangeProfilePictureMenu(!changeProfilePictureMenu);

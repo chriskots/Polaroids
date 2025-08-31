@@ -1,17 +1,284 @@
+import { useState, useMemo } from 'react';
+import firebase from '../firebase';
+import {
+  ThemeProvider,
+  Button,
+  Dialog,
+  TextField,
+  IconButton,
+  Badge,
+} from '@material-ui/core';
+import {
+  ChatOutlined,
+  Favorite,
+  FavoriteBorder,
+} from '@material-ui/icons';
+import { makeStyles, createTheme } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
 
+const useStyles = makeStyles((theme) => ({
+  outterBox: {
+    [theme.breakpoints.up('sm')]: {
+      margin: '0% 30% 0%',
+    },
+    [theme.breakpoints.up('lg')]: {
+      margin: '0% 35% 0%',
+    },
+    [theme.breakpoints.up('xl')]: {
+      margin: '0% 40% 0%',
+    },
+  },
+  innerBox: {
+    //This can be sm instead but I wanted it to be consistent with the taskbar
+    [theme.breakpoints.up('md')]: {
+      width: '1000px',
+    },
+  },
+  polaroidGroups: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    width: '100%',
+  },
+  polaroidBox: {
+    textAlign: 'center',
+    width: 300,
+    height: 350,
+    margin: '5px',
+    padding: '15px 15px 20px',
+    boxShadow: '0px 0px 5px grey',
+  },
+  polaroidBoxSelectable: {
+    cursor: "pointer",
+    userSelect: 'none',
+  },
+  innerPolaroidBox: {
+    textAlign: 'center',
+    width: 300,
+    height: 300,
+    boxShadow: '0px 0px 1px grey',
+  },
+  images: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain',
+  },
+  viewPostCommentsMenu: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    height: 365,
+  },
+  postCommentsGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'auto',
+    height: 250,
+  },
+  postComment: {
+    display: 'flex',
+    flexDirection: 'column',
+    margin: '2px',
+    boxShadow: '0px 0px 1px grey',
+  },
+  commentUsername: {
+    display: 'flex',
+    marginLeft: '2px',
+  },
+  commentContent: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    overflowWrap: 'break-word',
+    wordBreak: 'break-word',
+    wordWrap: 'break-word',
+    marginLeft: '10px',
+  },
+  dateSize: {
+    fontSize: '10px',
+  },
+}));
+
+const textFieldTheme = createTheme({
+  palette: {
+    primary: {
+      main: '#171717',
+    },
+  },
+});
+
 function Home(props) {
+  const classes = useStyles();
   const profile = props.userProfile ? props.userProfile : null;
-  const friendsPosts = props.friendsPosts ? props.friendsPosts : [];
+  const [viewPostMenu, setViewPostMenu] = useState(false);
+  const [viewPostItem, setViewPostItem] = useState(null);
+  const [viewPostComments, setViewPostComments] = useState(false);
+  const [postMakeComment, setPostMakeComment] = useState('');
+  const [postMakeCommentError, setPostMakeCommentError] = useState(' ');
+  const ERROR_MESSAGE = 'Error';
+
+  const sortedPosts = useMemo(() => {
+    const friendsPosts = props.friendsPosts ? props.friendsPosts : [];
+    let returnSortedPosts = [];
+    for(const friend of friendsPosts) {
+      for(let post of friend.posts) {
+        post.uid = friend.uid;
+        returnSortedPosts = [...returnSortedPosts, post];
+      }
+    }
+    return returnSortedPosts;
+  }, [props.friendsPosts]);
+
+  const handleLikePost = (item) => {
+    console.log('liked', item);
+  }
+
+  const handleViewPostMenu = (item) => {
+    setViewPostMenu(!viewPostMenu);
+    setViewPostComments(false);
+    setPostMakeComment('');
+    setPostMakeCommentError(' ');
+    setViewPostItem(item);
+  };
+
+  const handleViewComments = () => {
+    setViewPostComments(!viewPostComments);
+  };
+
+  const handleMakeComment = () => {
+    makeComment();
+  };
+
+  const handleLikeComment = (commentIndex) => {
+    toggleLikeComment(commentIndex);
+  };
+
+  const handleViewPostMenuDialog = () => {
+      return (
+        viewPostItem ? 
+        <Dialog open={viewPostMenu} onClose={handleViewPostMenu}>
+          <div className={classes.polaroidBox}>
+            {!viewPostComments ?
+            <>
+              <div className={classes.innerPolaroidBox} onDoubleClick={() => handleLikePost(viewPostItem)}>
+                <img className={classes.images} style={{transform: `rotate(${viewPostItem.rotation}deg)`}} src={viewPostItem.image} alt={ERROR_MESSAGE} loading='lazy'/>
+              </div>
+              <h2>{viewPostItem.title}</h2>
+            </>
+            :
+            <div className={classes.viewPostCommentsMenu}>
+              Post Date: {viewPostItem.postDate}
+              <div className={classes.postCommentsGroup}>
+                {viewPostItem.comments.map((comment) => (
+                  <div className={classes.postComment} key={viewPostItem.comments.indexOf(comment)}>
+                    {/* Maybe make the comment user selectable to take them to the users profile */}
+                    {/* className={classes.polaroidBoxSelectable} onClick={() => handleFriendSelect(comment.user)} */}
+                    <div className={classes.commentUsername}>{comment.user}</div>
+                    <div className={classes.commentContent}>
+                      {comment.text}
+                      <IconButton aria-label="like comment" color="inherit" onClick={() => handleLikeComment(viewPostItem.comments.indexOf(comment))}>
+                        <Badge badgeContent={comment.likes.length} color="secondary">
+                          {comment.likes.includes(firebase.getCurrentUsername()) ? <Favorite /> : <FavoriteBorder />}
+                        </Badge>
+                      </IconButton>
+                    </div>
+                    <div className={`${classes.dateSize} ${classes.commentUsername}`}>{comment.commentDate}</div>
+                  </div>
+                ))}
+              </div>
+  
+              <div>
+                <ThemeProvider theme={textFieldTheme}>
+                  <TextField
+                    id="comment"
+                    placeholder="Comment"
+                    value={postMakeComment}
+                    onChange={(event) => {
+                      setPostMakeComment(event.target.value);
+                    }}
+                    error={postMakeCommentError !== ' ' ? true : false}
+                    helperText={postMakeCommentError}
+                  />
+                </ThemeProvider>
+                <IconButton aria-label="comment" color="inherit" onClick={handleMakeComment}>
+                  <Badge color="secondary">
+                    <ChatOutlined />
+                  </Badge>
+                </IconButton>
+              </div>
+            </div>
+            }
+          </div>
+          <Button onClick={handleViewComments}>
+            Flip
+          </Button>
+        </Dialog>
+        :
+        <></>
+      );
+    };
 
   return (
-    <div>
-      {/* {profile ? console.log(friendsPosts)
+    <div className={classes.outterBox}>
+      {profile ? 
+      <>
+        <div className={classes.polaroidGroups}>
+          {sortedPosts.map((post) => (
+            <div className={`${classes.polaroidBox} ${classes.polaroidBoxSelectable}`} onClick={() => handleViewPostMenu(post)} key={sortedPosts.indexOf(post)}>
+              <div className={classes.innerPolaroidBox}>
+                <img className={classes.images} style={{transform: `rotate(${post.rotation}deg)`}} src={post.image} alt={ERROR_MESSAGE} loading='lazy'/>
+              </div>
+              <h2>{post.title}</h2>
+            </div>
+          ))}
+        </div>
+        {handleViewPostMenuDialog()}
+      </>
       :
         <></>
-      } */}
+      }
     </div>
   );
+
+  // async function toggleLikePost(post) {}
+  
+  async function makeComment() {
+    if (postMakeComment === '') {
+      setPostMakeCommentError('Missing Comment');
+      return;
+    }
+
+    try {
+      await firebase.makeComment(
+        profile.uid,
+        viewPostItem.image,
+        postMakeComment,
+      );
+
+      setPostMakeComment('');
+      setPostMakeCommentError(' ');
+      // Close the menu to reload the data
+      setViewPostMenu(!viewPostMenu);
+      // {futurePlans} I want to reload the page data but the problem is that viewPostItem changes on the server when getting the profile but not locally
+      props.updatePageData();
+    } catch(error) {
+      setPostMakeCommentError('Error');
+    }
+  }
+
+  async function toggleLikeComment(commentIndex) {
+    try {
+      await firebase.toggleLikeComment(
+        profile.uid,
+        viewPostItem.image,
+        commentIndex,
+      );
+      
+      setViewPostMenu(!viewPostMenu);
+      props.updatePageData();
+    } catch(error) {}
+  }
 }
 
 export default withRouter(Home);
