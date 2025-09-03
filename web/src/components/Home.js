@@ -134,14 +134,28 @@ function Home(props) {
 
     for(const friend of friendsPosts) {
       for(const post of friend.posts) {
-        // I am having an issue here where I get duplicate posts
         returnSortedPosts.push({
           ...post,
           uid: friend.uid,
         });
       }
     }
-    return returnSortedPosts;
+
+    return returnSortedPosts.sort((first, second) => {
+      // Split into [date, time]
+      const [firstDatePart, firstHour, firstMinute] = first.postDate.split(":");
+      // Date part
+      const [firstYear, firstMonth, firstDay] = firstDatePart.split("-").map(Number);
+      const firstDate = new Date(firstYear, firstMonth - 1, firstDay, firstHour, firstMinute);
+      
+      // Split into [date, time]
+      const [secondDatePart, secondHour, secondMinute] = second.postDate.split(":");
+      // Date part
+      const [secondYear, secondMonth, secondDay] = secondDatePart.split("-").map(Number);
+      const secondDate = new Date(secondYear, secondMonth - 1, secondDay, secondHour, secondMinute);
+
+      return firstDate - secondDate;
+    });
   }, [props.friendsPosts]);
 
   const handleViewPostMenu = (item) => {
@@ -175,7 +189,7 @@ function Home(props) {
           <div className={classes.polaroidBox}>
             {!viewPostComments ?
             <>
-              <div className={classes.innerPolaroidBox} onDoubleClick={() => handleLikePost()}>
+              <div className={`${classes.innerPolaroidBox} ${classes.polaroidBoxSelectable}`} onDoubleClick={() => handleLikePost()}>
                 <img className={classes.images} style={{transform: `rotate(${viewPostItem.rotation}deg)`}} src={viewPostItem.image} alt={ERROR_MESSAGE} loading='lazy'/>
               </div>
               <div className={classes.postTitle}>

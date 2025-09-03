@@ -59,6 +59,7 @@ export default function HomePage(props) {
   }, [props.history, location, reloadPageData]);
 
   const updatePageData = () => {
+    setFriendsPosts([]);
     setReloadPageData(!reloadPageData);
   }
 

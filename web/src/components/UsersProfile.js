@@ -288,7 +288,7 @@ function UsersProfile(props) {
         <div className={classes.polaroidBox}>
           {!viewPostComments ?
           <>
-            <div className={classes.innerPolaroidBox} onDoubleClick={() => handleLikePost()}>
+            <div className={`${classes.innerPolaroidBox} ${classes.polaroidBoxSelectable}`} onDoubleClick={() => handleLikePost()}>
               <img className={classes.images} style={{transform: `rotate(${viewPostItem.rotation}deg)`}} src={viewPostItem.image} alt={ERROR_MESSAGE} loading='lazy'/>
             </div>
             <div className={classes.postTitle}>

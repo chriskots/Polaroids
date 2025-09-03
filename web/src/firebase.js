@@ -221,6 +221,10 @@ class Firebase {
       });
       
       this.db.doc('users/' + profileID).update({ posts: allPosts });
+      // {FuturePlans} Allow for the user to get a notification when you like their post (but when you un-like it I want to remove the notification)
+      // await updateDoc(user, {
+      //   notifications: arrayUnion(username + ' has liked your post'),
+      // });
     }
   }
 
