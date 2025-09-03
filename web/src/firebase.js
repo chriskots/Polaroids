@@ -192,6 +192,38 @@ class Firebase {
     });
   }
 
+  async toggleLikePost(profileID, image) {
+    const user = doc(this.db, 'users', profileID);
+    const docSnap = await getDoc(user);
+    const username = this.getCurrentUsername();
+    
+    if (docSnap.exists()) {
+      const posts = docSnap.data().posts || [];
+
+      const allPosts = posts.map((post) => {
+        if (post.image !== image) {
+          return post;
+        }
+
+        if (post.likes.includes(username)) {
+          //When the user has liked the comment already and would like to remove it
+          return {
+            ...post,
+            likes: post.likes.filter((user) => user !== username),
+          };
+        } else {
+          // When the user has not liked the comment yet
+          return {
+            ...post,
+            likes: [...post.likes, username],
+          };
+        }
+      });
+      
+      this.db.doc('users/' + profileID).update({ posts: allPosts });
+    }
+  }
+
   // Using Image as a unique identifier for the post that a comment is being made for
   async makeComment(profileID, image, text) {
     const todaysDate = new Date();

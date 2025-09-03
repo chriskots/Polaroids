@@ -64,6 +64,16 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     objectFit: 'contain',
   },
+  postTitle: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  postTitleLikes: {
+    display: 'flex',
+    position: 'absolute',
+    right: '20px',
+  },
   viewPostCommentsMenu: {
     display: 'flex',
     flexDirection: 'column',
@@ -121,18 +131,18 @@ function Home(props) {
   const sortedPosts = useMemo(() => {
     const friendsPosts = props.friendsPosts ? props.friendsPosts : [];
     let returnSortedPosts = [];
+
     for(const friend of friendsPosts) {
-      for(let post of friend.posts) {
-        post.uid = friend.uid;
-        returnSortedPosts = [...returnSortedPosts, post];
+      for(const post of friend.posts) {
+        // I am having an issue here where I get duplicate posts
+        returnSortedPosts.push({
+          ...post,
+          uid: friend.uid,
+        });
       }
     }
     return returnSortedPosts;
   }, [props.friendsPosts]);
-
-  const handleLikePost = (item) => {
-    console.log('liked', item);
-  }
 
   const handleViewPostMenu = (item) => {
     setViewPostMenu(!viewPostMenu);
@@ -141,6 +151,10 @@ function Home(props) {
     setPostMakeCommentError(' ');
     setViewPostItem(item);
   };
+
+  const handleLikePost = () => {
+    toggleLikePost();
+  }
 
   const handleViewComments = () => {
     setViewPostComments(!viewPostComments);
@@ -161,10 +175,15 @@ function Home(props) {
           <div className={classes.polaroidBox}>
             {!viewPostComments ?
             <>
-              <div className={classes.innerPolaroidBox} onDoubleClick={() => handleLikePost(viewPostItem)}>
+              <div className={classes.innerPolaroidBox} onDoubleClick={() => handleLikePost()}>
                 <img className={classes.images} style={{transform: `rotate(${viewPostItem.rotation}deg)`}} src={viewPostItem.image} alt={ERROR_MESSAGE} loading='lazy'/>
               </div>
-              <h2>{viewPostItem.title}</h2>
+              <div className={classes.postTitle}>
+                <h2>{viewPostItem.title}</h2>
+                <Badge className={classes.postTitleLikes} badgeContent={viewPostItem.likes ? viewPostItem.likes.length : 0} color="secondary">
+                  {viewPostItem.likes ? viewPostItem.likes.includes(firebase.getCurrentUsername()) ? <Favorite /> : <FavoriteBorder /> : <FavoriteBorder />}
+                </Badge>
+              </div>
             </>
             :
             <div className={classes.viewPostCommentsMenu}>
@@ -241,7 +260,17 @@ function Home(props) {
     </div>
   );
 
-  // async function toggleLikePost(post) {}
+  async function toggleLikePost() {
+    try {
+      await firebase.toggleLikePost(
+        viewPostItem.uid,
+        viewPostItem.image,
+      );
+
+      setViewPostMenu(!viewPostMenu);
+      props.updatePageData();
+    } catch(error) {} 
+  }
   
   async function makeComment() {
     if (postMakeComment === '') {

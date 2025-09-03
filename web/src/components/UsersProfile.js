@@ -102,6 +102,16 @@ const useStyles = makeStyles((theme) => ({
     position: 'fixed',
     zIndex: 1,
   },
+  postTitle: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  postTitleLikes: {
+    display: 'flex',
+    position: 'absolute',
+    right: '20px',
+  },
   viewPostCommentsMenu: {
     display: 'flex',
     flexDirection: 'column',
@@ -255,8 +265,8 @@ function UsersProfile(props) {
     setViewPostItem(item);
   };
 
-  const handleLikePost = (item) => {
-    console.log('liked', item);
+  const handleLikePost = () => {
+    toggleLikePost();
   }
 
   const handleViewComments = () => {
@@ -278,10 +288,15 @@ function UsersProfile(props) {
         <div className={classes.polaroidBox}>
           {!viewPostComments ?
           <>
-            <div className={classes.innerPolaroidBox} onDoubleClick={() => handleLikePost(viewPostItem)}>
+            <div className={classes.innerPolaroidBox} onDoubleClick={() => handleLikePost()}>
               <img className={classes.images} style={{transform: `rotate(${viewPostItem.rotation}deg)`}} src={viewPostItem.image} alt={ERROR_MESSAGE} loading='lazy'/>
             </div>
-            <h2>{viewPostItem.title}</h2>
+            <div className={classes.postTitle}>
+              <h2>{viewPostItem.title}</h2>
+              <Badge className={classes.postTitleLikes} badgeContent={viewPostItem.likes ? viewPostItem.likes.length : 0} color="secondary">
+                {viewPostItem.likes ? viewPostItem.likes.includes(firebase.getCurrentUsername()) ? <Favorite /> : <FavoriteBorder /> : <FavoriteBorder />}
+              </Badge>
+            </div>
           </>
           :
           <div className={classes.viewPostCommentsMenu}>
@@ -574,6 +589,18 @@ function UsersProfile(props) {
         setNewPostImageError(true);
       }
     }
+  }
+
+  async function toggleLikePost() {
+    try {
+      await firebase.toggleLikePost(
+        profile.uid,
+        viewPostItem.image,
+      );
+
+      setViewPostMenu(!viewPostMenu);
+      props.updatePageData();
+    } catch(error) {} 
   }
 
   async function changeProfilePicture() {
