@@ -61,7 +61,7 @@ export default function UserPage(props) {
 
   return (
     <div className={classes.taskBarSpacing}>
-      <TaskBar userProfile={userProfile}/>
+      <TaskBar userProfile={userProfile} updatePageData={updatePageData}/>
       <UsersProfile profile={viewProfile} updatePageData={updatePageData}/>
     </div>
   );

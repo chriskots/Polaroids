@@ -117,6 +117,18 @@ class Firebase {
     return this.userProfile;
   }
 
+  // Remove notification function here
+  async removeNotification(notification) {
+    const userRef = doc(this.db, 'users', this.auth.currentUser.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.data().notifications.includes(notification)) {
+      await updateDoc(userRef, {
+        notifications: arrayRemove(notification),
+      });
+    }
+  }
+
   async sendFriendRequest(uid, username) {
     const userRef = doc(this.db, 'users', this.auth.currentUser.uid);
     const userSnap = await getDoc(userRef);

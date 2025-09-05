@@ -44,6 +44,7 @@ export default function HomePage(props) {
         getUserProfile(firebase.getCurrentUsername())
         .then((resultUser) => {
           setUserProfile(resultUser);
+          setFriendsPosts(prevFriendsPosts => [...prevFriendsPosts, {uid: resultUser.uid, posts: resultUser.posts}]);
           //Initially get the users friends profiles with firebase
           for (const friend of resultUser.friends) {
             getUserProfile(friend)
@@ -65,7 +66,7 @@ export default function HomePage(props) {
 
   return (
     <div className={classes.taskBarSpacing}>
-      <TaskBar userProfile={userProfile}/>
+      <TaskBar userProfile={userProfile} updatePageData={updatePageData}/>
       <Home userProfile={userProfile} friendsPosts={friendsPosts} updatePageData={updatePageData}/>
     </div>
   );

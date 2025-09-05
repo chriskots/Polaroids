@@ -145,6 +145,10 @@ function TaskBar(props) {
     setNotificationsOpenAnchorEl(event.currentTarget);
   };
 
+  const handleRemoveNotification = (item) => {
+    removeNotification(item);
+  }
+
   //Notifications Menu is closed
   const handleNotificationsMenuClose = () => {
     setNotificationsOpenAnchorEl(null);
@@ -201,6 +205,14 @@ function TaskBar(props) {
     }
   }
 
+  async function removeNotification(item) {
+    try {
+      await firebase.removeNotification(item);
+      handleNotificationsMenuClose();
+      props.updatePageData();
+    } catch (error){}
+  }
+
   //Render the regular menu
   const menuId = 'primary-search-account-menu';
   const renderMenu = () => {
@@ -238,7 +250,10 @@ function TaskBar(props) {
         {/* {FuturePlans} make these selectable to go to the notificaiton in question (go to the comment or post) */}
         {/* Another option is to remove the item when you select it but you can figure this out later */}
         {userProfile && userProfile.notifications.length > 0 ? 
-          userProfile.notifications.map((notification) => <MenuItem key={userProfile.notifications.indexOf(notification)}>{notification}</MenuItem>)
+          userProfile.notifications.map((notification) => 
+          <MenuItem key={userProfile.notifications.indexOf(notification)} onClick={() => handleRemoveNotification(notification)}>
+            {notification}
+          </MenuItem>)
         :
           <MenuItem disabled>Empty</MenuItem>
         }

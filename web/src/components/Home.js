@@ -141,7 +141,8 @@ function Home(props) {
       }
     }
 
-    return returnSortedPosts.sort((first, second) => {
+    // Sorting the posts to be newest first
+    return returnSortedPosts.sort((second, first) => {
       // Split into [date, time]
       const [firstDatePart, firstHour, firstMinute] = first.postDate.split(":");
       // Date part

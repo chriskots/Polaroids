@@ -30,6 +30,7 @@ export default function ErrorPage(props) {
   //Use location to make sure that the page re-renders when a user goes to a profile from an obscure way (searching up and typing manually)
   const location = useLocation();
   const [userProfile, setUserProfile] = useState(null);
+  const [reloadPageData, setReloadPageData] = useState(false);
 
   useEffect (() => {
     //User not logged in
@@ -47,11 +48,15 @@ export default function ErrorPage(props) {
         console.error("Error fetching profile: ", error);
       }
     }
-  }, [props.history, location]);
+  }, [props.history, location, reloadPageData]);
+
+  const updatePageData = () => {
+    setReloadPageData(!reloadPageData);
+  }
 
   return (
     <div className={classes.taskBarSpacing}>
-      <TaskBar userProfile={userProfile}/>
+      <TaskBar userProfile={userProfile} updatePageData={updatePageData}/>
       <ErrorMessage />
     </div>
   );

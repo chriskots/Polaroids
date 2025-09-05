@@ -56,7 +56,7 @@ export default function MessagesPage(props) {
 
   return (
     <div className={classes.taskBarSpacing}>
-      <TaskBar userProfile={userProfile}/>
+      <TaskBar userProfile={userProfile} updatePageData={updatePageData}/>
       <Messages userProfile={userProfile} updatePageData={updatePageData}/>
     </div>
   );
