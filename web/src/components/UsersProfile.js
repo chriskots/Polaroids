@@ -293,6 +293,7 @@ function UsersProfile(props) {
               <img className={classes.images} style={{transform: `rotate(${viewPostItem.rotation}deg)`}} src={viewPostItem.image} alt={ERROR_MESSAGE} loading='lazy'/>
             </div>
             <div className={classes.postTitle}>
+              {/* <h2>WWWWWWWWWW</h2> */}
               <h2>{viewPostItem.title}</h2>
               <Badge className={classes.postTitleLikes} badgeContent={viewPostItem.likes ? viewPostItem.likes.length : 0} color="secondary">
                 {viewPostItem.likes ? viewPostItem.likes.includes(firebase.getCurrentUsername()) ? <Favorite /> : <FavoriteBorder /> : <FavoriteBorder />}
@@ -458,8 +459,10 @@ function UsersProfile(props) {
                   <ThemeProvider theme={textFieldTheme}>
                     <TextField
                       placeholder='Create New Post'
-                      inputProps={{style: { textAlign: 'center' }}}
+                      // Find the correct maxLength: 15 for inputProps
+                      inputProps={{style: { textAlign: 'center' }, maxLength: 15}}
                       value={newPostTitle}
+                      fullWidth
                       onChange={(event) => {
                         setNewPostTitle(event.target.value);
                       }}
@@ -473,7 +476,7 @@ function UsersProfile(props) {
                 Post
               </Button>
             </Dialog>
-            {profile.posts.map((item) => (
+            {[...profile.posts].reverse().map((item) => (
               <div className={`${classes.polaroidBox} ${classes.polaroidBoxSelectable}`} onClick={() => handleViewPostMenu(item)} key={profile.posts.indexOf(item)}>
                 <div className={classes.innerPolaroidBox}>
                   <img className={classes.images} style={{transform: `rotate(${item.rotation}deg)`}} src={item.image} alt={ERROR_MESSAGE} loading='lazy'/>
@@ -493,8 +496,7 @@ function UsersProfile(props) {
             <Avatar
               src={profile.profilePicture}
               alt={profile.username}
-              className={`${classes.avatar} ${classes.polaroidBoxSelectable}`}
-              onClick={() => handleChangeProfilePictureMenu()}
+              className={classes.avatar}
             />
             <Typography className={classes.usernameStyle}>
               {profile.username}
@@ -517,7 +519,7 @@ function UsersProfile(props) {
                 </Dialog>
                 {/* Posts Section */}
                 <div className={classes.polaroidGroups}>
-                  {profile.posts.map((item) => (
+                  {[...profile.posts].reverse().map((item) => (
                     <div className={`${classes.polaroidBox} ${classes.polaroidBoxSelectable}`} onClick={() => handleViewPostMenu(item)} key={profile.posts.indexOf(item)}>
                       <div className={classes.innerPolaroidBox}>
                         <img className={classes.images} style={{transform: `rotate(${item.rotation}deg)`}} src={item.image} alt={ERROR_MESSAGE} loading='lazy'/>

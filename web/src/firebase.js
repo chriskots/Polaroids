@@ -161,7 +161,7 @@ class Firebase {
     const post = {
       title: title,
       postDate: postDate,
-      likes: 0,
+      likes: [],
       comments: [],
       rotation: rotation,
     };
@@ -205,9 +205,10 @@ class Firebase {
   }
 
   async toggleLikePost(profileID, image) {
-    const user = doc(this.db, 'users', profileID);
-    const docSnap = await getDoc(user);
+    const userRef = doc(this.db, 'users', profileID);
+    const docSnap = await getDoc(userRef);
     const username = this.getCurrentUsername();
+    let addUserNotification = true;
     
     if (docSnap.exists()) {
       const posts = docSnap.data().posts || [];
@@ -219,6 +220,7 @@ class Firebase {
 
         if (post.likes.includes(username)) {
           //When the user has liked the comment already and would like to remove it
+          addUserNotification = false;
           return {
             ...post,
             likes: post.likes.filter((user) => user !== username),
@@ -233,10 +235,15 @@ class Firebase {
       });
       
       this.db.doc('users/' + profileID).update({ posts: allPosts });
-      // {FuturePlans} Allow for the user to get a notification when you like their post (but when you un-like it I want to remove the notification)
-      // await updateDoc(user, {
-      //   notifications: arrayUnion(username + ' has liked your post'),
-      // });
+      if (addUserNotification) {
+        await updateDoc(userRef, {
+          notifications: arrayUnion(username + ' has liked your post'),
+        });
+      } else {
+        await updateDoc(userRef, {
+          notifications: arrayRemove(username + ' has liked your post'),
+        });
+      }
     }
   }
 
