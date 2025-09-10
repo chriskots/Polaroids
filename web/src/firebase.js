@@ -137,11 +137,15 @@ class Firebase {
     if (userSnap.data().friendRequests.includes(username)) {
       await updateDoc(friendRef, {
         friends: arrayUnion(this.auth.currentUser.displayName),
+        messages: arrayUnion({friend: this.auth.currentUser.displayName, messages: []}),
+        newMessages: arrayUnion({friend: this.auth.currentUser.displayName, messages: []}),
         notifications: arrayUnion('Friend request accepted from: ' + this.auth.currentUser.displayName),
       });
       await updateDoc(userRef, {
         friends: arrayUnion(username),
         friendRequests: arrayRemove(username),
+        messages: arrayUnion({friend: username, messages: []}),
+        newMessages: arrayUnion({friend: username, messages: []}),
         notifications: arrayUnion('Added Friend: ' + username),
       });
     } else {

@@ -11,10 +11,14 @@
     - Make the text have a EditOutlinedIcon beside it
     - Flip the polaroid around to edit text on the back
 - Tactile signature
+- Maybe change the dates to be 9/8/2025: 11:42 format
+- Dynamically change the font sizes when the text reaches outside of the div for the h2 post titles
+    - Maybe also limit the text allowed in the create new post functionality (but I would prefer them to just make the post titles smaller visually)
+    - Another option is making a caption for the polaroid on the back of the polaroid (allows the user to provide more text instead of relying on the title)
 - Maybe I can find a way to use redis cache to reduce calls to firebase and speed up the project
 - Resize the image that is uploaded so it doesn't take up too much space
 - View password in regular text (toggle)
 - Email confirmation when signing up
 - Change email signin to email or username signin
 - Darkmode
-- Clean up all the functions that have open/close to just ivert the status of the value
+- Clean up all the functions that have open/close to just invert the status of the value

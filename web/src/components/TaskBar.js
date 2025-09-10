@@ -384,6 +384,7 @@ function TaskBar(props) {
               color="inherit"
               onClick={handleMessages}
             >
+              {/* Need to fix this with the new way to store messages {friend: 'name', messages: []} */}
               <Badge badgeContent={userProfile ? userProfile.newMessages.length : 0} color="secondary">
                 {messagesOpen ? <Chat /> : <ChatOutlined />}
               </Badge>

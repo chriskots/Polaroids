@@ -158,7 +158,6 @@ const textFieldTheme = createTheme({
 
 function UsersProfile(props) {
   const classes = useStyles();
-  // {Next Steps} I would like to sort the profiles posts by newest first
   const profile = props.profile;
   const [viewFreindsMenu, setViewFriendsMenu] = useState(false);
   const [friendRequestSent, setFriendRequestSent] = useState(false);
@@ -193,7 +192,7 @@ function UsersProfile(props) {
 
   const handleChangeProfilePicture = () => {
     changeProfilePicture();
-  }
+  };
 
   const handleViewFriendsMenu = () => {
     setViewFriendsMenu(!viewFreindsMenu);
@@ -321,7 +320,6 @@ function UsersProfile(props) {
                 </div>
               ))}
             </div>
-
             <div>
               <ThemeProvider theme={textFieldTheme}>
                 <TextField
