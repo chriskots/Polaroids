@@ -44,6 +44,9 @@ const useStyles = makeStyles((theme) => ({
     padding: '5px',
     borderRadius: '5px',
   },
+  friendListItemTextBold: {
+    fontWeight: "bold",
+  }
 }));
 
 const textFieldTheme = createTheme({
@@ -65,9 +68,11 @@ function Messages(props) {
   const handleSelectUser = (friend) => {
     for (let user of profile.messages) {
       if (user.friend === friend) {
-        props.updatePageData();
         setViewFriendUser(user);
         setViewFriendMessages(user.messages);
+        if (profile.newMessages.includes(friend)) {
+          removeNewMessageNotification(friend);
+        }
       }
     }
   };
@@ -91,7 +96,10 @@ function Messages(props) {
               button
               onClick={() => handleSelectUser(friend)}
             >
-              <ListItemText primary={friend}/>
+              <ListItemText
+                classes={{primary: profile.newMessages.includes(friend) ? classes.friendListItemTextBold : ''}}
+                primary={friend}
+              />
             </ListItem>
           ))
           :
@@ -130,6 +138,16 @@ function Messages(props) {
       </div>
     </Box>
   );
+
+  async function removeNewMessageNotification(friend) {
+    try {
+      await firebase.removeNewMessageNotification(
+        friend,
+      );
+
+      props.updatePageData();
+    } catch(error) {}
+  }
 
   async function sendMessage() {
     if (message === '') {

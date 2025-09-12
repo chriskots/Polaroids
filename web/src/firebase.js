@@ -138,14 +138,12 @@ class Firebase {
       await updateDoc(friendRef, {
         friends: arrayUnion(this.auth.currentUser.displayName),
         messages: arrayUnion({uid: this.auth.currentUser.uid, friend: this.auth.currentUser.displayName, messages: []}),
-        newMessages: arrayUnion({uid: this.auth.currentUser.uid, friend: this.auth.currentUser.displayName, messages: []}),
         notifications: arrayUnion('Friend request accepted from: ' + this.auth.currentUser.displayName),
       });
       await updateDoc(userRef, {
         friends: arrayUnion(username),
         friendRequests: arrayRemove(username),
         messages: arrayUnion({uid: uid, friend: username, messages: []}),
-        newMessages: arrayUnion({uid: uid, friend: username, messages: []}),
         notifications: arrayUnion('Added Friend: ' + username),
       });
     } else {
@@ -321,6 +319,14 @@ class Firebase {
     }
   }
 
+  async removeNewMessageNotification(friendUsername) {
+    const userRef = doc(this.db, 'users', this.auth.currentUser.uid);
+
+    await updateDoc(userRef, {
+      newMessages: arrayRemove(friendUsername),
+    });
+  }
+
   async sendMessage(friendUID, friendUsername, friendMessage) {
     const user = doc(this.db, 'users', friendUID);
     const docSnap = await getDoc(user);
@@ -367,6 +373,7 @@ class Firebase {
 
       await updateDoc(user, {
         messages: allMessages,
+        newMessages: arrayUnion(username),
       });
     }
   }
