@@ -137,15 +137,15 @@ class Firebase {
     if (userSnap.data().friendRequests.includes(username)) {
       await updateDoc(friendRef, {
         friends: arrayUnion(this.auth.currentUser.displayName),
-        messages: arrayUnion({friend: this.auth.currentUser.displayName, messages: []}),
-        newMessages: arrayUnion({friend: this.auth.currentUser.displayName, messages: []}),
+        messages: arrayUnion({uid: this.auth.currentUser.uid, friend: this.auth.currentUser.displayName, messages: []}),
+        newMessages: arrayUnion({uid: this.auth.currentUser.uid, friend: this.auth.currentUser.displayName, messages: []}),
         notifications: arrayUnion('Friend request accepted from: ' + this.auth.currentUser.displayName),
       });
       await updateDoc(userRef, {
         friends: arrayUnion(username),
         friendRequests: arrayRemove(username),
-        messages: arrayUnion({friend: username, messages: []}),
-        newMessages: arrayUnion({friend: username, messages: []}),
+        messages: arrayUnion({uid: uid, friend: username, messages: []}),
+        newMessages: arrayUnion({uid: uid, friend: username, messages: []}),
         notifications: arrayUnion('Added Friend: ' + username),
       });
     } else {
@@ -318,6 +318,56 @@ class Firebase {
       });
       
       this.db.doc('users/' + profileID).update({ posts: allPosts });
+    }
+  }
+
+  async sendMessage(friendUID, friendUsername, friendMessage) {
+    const user = doc(this.db, 'users', friendUID);
+    const docSnap = await getDoc(user);
+    const username = this.getCurrentUsername();
+    const userRef = doc(this.db, 'users', this.auth.currentUser.uid);
+    const userSnap = await getDoc(userRef);
+
+    const todaysDate = new Date();
+    const formattedMinutes = todaysDate.getMinutes().toString().padStart(2, '0');
+    const messageDate = todaysDate.getFullYear() + '-' + (todaysDate.getMonth() + 1) + '-' + todaysDate.getDate() + ': ' + todaysDate.getHours() + ':' + formattedMinutes;
+    
+    if (userSnap.exists()) {
+      const messages = userSnap.data().messages || [];
+
+      const allMessages = messages.map((message) => {
+        if (message.friend !== friendUsername) {
+          return message;
+        }
+
+        return {
+          ...message,
+          messages: [...message.messages, {username: username, message: friendMessage, date: messageDate}],
+        }
+      });
+
+      await updateDoc(userRef, {
+        messages: allMessages,
+      });
+    }
+
+    if (docSnap.exists()) {
+      const messages = docSnap.data().messages || [];
+
+      const allMessages = messages.map((message) => {
+        if (message.friend !== username) {
+          return message;
+        }
+
+        return {
+          ...message,
+          messages: [...message.messages, {username: username, message: friendMessage, date: messageDate}],
+        }
+      });
+
+      await updateDoc(user, {
+        messages: allMessages,
+      });
     }
   }
 

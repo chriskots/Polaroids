@@ -1,6 +1,19 @@
 import { useState } from 'react';
-// import firebase from '../firebase';
-import { Box, Divider, List, ListItem, ListItemText } from '@material-ui/core';
+import firebase from '../firebase';
+import {
+  Box,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  ThemeProvider,
+  TextField,
+  IconButton,
+  Badge,
+} from '@material-ui/core';
+import {
+  ChatOutlined,
+} from '@material-ui/icons';
 import { makeStyles, createTheme } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
 
@@ -44,11 +57,24 @@ const textFieldTheme = createTheme({
 function Messages(props) {
   const classes = useStyles();
   const profile = props.userProfile;
-  const [viewFriendMessages, setViewFriendMessages] = useState('');
+  const [viewFriendUser, setViewFriendUser] = useState(null);
+  const [viewFriendMessages, setViewFriendMessages] = useState([]);
+  const [message, setMessage] = useState('');
+  const [messageError, setMessageError] = useState(' ');
 
   const handleSelectUser = (friend) => {
-    setViewFriendMessages(friend);
+    for (let user of profile.messages) {
+      if (user.friend === friend) {
+        props.updatePageData();
+        setViewFriendUser(user);
+        setViewFriendMessages(user.messages);
+      }
+    }
   };
+
+  const handleSendMessage = () => {
+    sendMessage();
+  }
 
   return (
     <Box className={classes.outterBox}>
@@ -74,10 +100,58 @@ function Messages(props) {
         </List>
       </div>
       <div className={classes.innerMessagesSide}>
-          {viewFriendMessages}
+        {viewFriendUser ? (
+          <>
+            {viewFriendMessages.map((message) => (
+              <div key={viewFriendMessages.indexOf(message)}>{message.message} by: {message.username}</div>
+            ))}
+            <ThemeProvider theme={textFieldTheme}>
+              <TextField
+                id="message"
+                placeholder="message"
+                value={message}
+                onChange={(event) => {
+                  setMessage(event.target.value);
+                }}
+                error={messageError !== ' ' ? true : false}
+                helperText={messageError}
+              />
+            </ThemeProvider>
+            <IconButton aria-label="message" color="inherit" onClick={handleSendMessage}>
+              <Badge color="secondary">
+                <ChatOutlined />
+              </Badge>
+            </IconButton>
+          </>
+          )
+        : 
+          <></>
+        }
       </div>
     </Box>
   );
+
+  async function sendMessage() {
+    if (message === '') {
+      setMessageError('Missing Message');
+      return;
+    }
+
+    try {
+      await firebase.sendMessage(
+        viewFriendUser.uid,
+        viewFriendUser.friend,
+        message,
+      );
+
+      setMessage('');
+      setMessageError(' ');
+      props.updatePageData();
+    } catch(error) {
+      console.log(error);
+      setMessageError('Error');
+    }
+  }
 }
 
 export default withRouter(Messages);

@@ -624,8 +624,6 @@ function UsersProfile(props) {
     }
   }
 
-  // async function toggleLikePost(post) {}
-
   async function makeComment() {
     if (postMakeComment === '') {
       setPostMakeCommentError('Missing Comment');
