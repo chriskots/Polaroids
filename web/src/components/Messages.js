@@ -36,6 +36,8 @@ const useStyles = makeStyles((theme) => ({
   innerMessagesSide: {
     display: 'flex',
     flexDirection: 'column',
+    width: '100%',
+    height: '100%',
   },
   dividerWidth: {
     width: '95%',
@@ -45,7 +47,31 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: '5px',
   },
   friendListItemTextBold: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
+  },
+  messagesDisplaySide: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    height: '100%',
+  },
+  messagesDisplayContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'auto',
+    height: '100%',
+  },
+  messageUsernameDisplayUser: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+  messageUsernameDisplayFriend: {
+    display: 'flex',
+    justifyContent: 'flex-start',
+  },
+  messagesDisplayCenter: {
+    display: 'flex',
+    justifyContent: 'center',
   }
 }));
 
@@ -81,6 +107,12 @@ function Messages(props) {
     sendMessage();
   }
 
+  const handleSendMessageEnterKey = (event) => {
+    if (event.key === 'Enter') {
+      sendMessage();
+    }
+  };
+
   return (
     <Box className={classes.outterBox}>
       <div className={classes.innerUsersSide}>
@@ -109,28 +141,52 @@ function Messages(props) {
       </div>
       <div className={classes.innerMessagesSide}>
         {viewFriendUser ? (
-          <>
-            {viewFriendMessages.map((message) => (
-              <div key={viewFriendMessages.indexOf(message)}>{message.message} by: {message.username}</div>
-            ))}
-            <ThemeProvider theme={textFieldTheme}>
-              <TextField
-                id="message"
-                placeholder="message"
-                value={message}
-                onChange={(event) => {
-                  setMessage(event.target.value);
-                }}
-                error={messageError !== ' ' ? true : false}
-                helperText={messageError}
-              />
-            </ThemeProvider>
-            <IconButton aria-label="message" color="inherit" onClick={handleSendMessage}>
-              <Badge color="secondary">
-                <ChatOutlined />
-              </Badge>
-            </IconButton>
-          </>
+          <div className={classes.messagesDisplaySide}>
+            <div className={classes.messagesDisplayCenter}>
+              <h3>
+                {viewFriendUser.friend}
+              </h3>
+            </div>
+            <List className={classes.messagesDisplayContent}>
+              {viewFriendMessages.map((message) => (
+                <ListItem alignItems="flex-start">
+                  <ListItemText
+                    primary={
+                      <Box className={message.username ? classes.messageUsernameDisplayUser : classes.messageUsernameDisplayFriend}>
+                          {message.username}: {message.date}
+                      </Box>
+                    }
+                    secondary={
+                      <div className={message.username ? classes.messageUsernameDisplayUser : classes.messageUsernameDisplayFriend}>
+                        {message.message}
+                      </div>
+                    }
+                  />
+                </ListItem>
+              ))}
+            </List>
+            <div className={classes.messagesDisplayCenter}>
+              <ThemeProvider theme={textFieldTheme}>
+                <TextField
+                  id="message"
+                  placeholder="message"
+                  fullWidth
+                  value={message}
+                  onChange={(event) => {
+                    setMessage(event.target.value);
+                  }}
+                  onKeyDown={handleSendMessageEnterKey}
+                  error={messageError !== ' ' ? true : false}
+                  helperText={messageError}
+                />
+              </ThemeProvider>
+              <IconButton aria-label="message" color="inherit" onClick={handleSendMessage}>
+                <Badge color="secondary">
+                  <ChatOutlined />
+                </Badge>
+              </IconButton>
+            </div>
+          </div>
           )
         : 
           <></>
