@@ -152,12 +152,12 @@ function Messages(props) {
                 <ListItem alignItems="flex-start">
                   <ListItemText
                     primary={
-                      <Box className={message.username ? classes.messageUsernameDisplayUser : classes.messageUsernameDisplayFriend}>
+                      <Box className={message.username === firebase.getCurrentUsername() ? classes.messageUsernameDisplayUser : classes.messageUsernameDisplayFriend}>
                           {message.username}: {message.date}
                       </Box>
                     }
                     secondary={
-                      <div className={message.username ? classes.messageUsernameDisplayUser : classes.messageUsernameDisplayFriend}>
+                      <div className={message.username === firebase.getCurrentUsername() ? classes.messageUsernameDisplayUser : classes.messageUsernameDisplayFriend}>
                         {message.message}
                       </div>
                     }
@@ -220,6 +220,8 @@ function Messages(props) {
 
       setMessage('');
       setMessageError(' ');
+      setViewFriendUser(null);
+      setViewFriendMessages([]);
       props.updatePageData();
     } catch(error) {
       console.log(error);
