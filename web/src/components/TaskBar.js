@@ -209,7 +209,14 @@ function TaskBar(props) {
     try {
       await firebase.removeNotification(item);
       handleNotificationsMenuClose();
-      props.updatePageData();
+      // "Friend request from: <Username>" and "Added friend: <Username>" brings them to the users profile and remove the notification
+      if (item.includes('Friend request from: ') || item.includes('Added Friend: ')) {
+        const name = item.split(":")[1].trim();
+        props.history.push('/@' + name);
+      }
+      else {
+        props.updatePageData();
+      }
     } catch (error){}
   }
 

@@ -295,7 +295,7 @@ function Home(props) {
 
     try {
       await firebase.makeComment(
-        profile.uid,
+        viewPostItem.uid,
         viewPostItem.image,
         postMakeComment,
       );

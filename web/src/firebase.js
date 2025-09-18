@@ -214,6 +214,7 @@ class Firebase {
     
     if (docSnap.exists()) {
       const posts = docSnap.data().posts || [];
+      const postUsername = docSnap.data().username || '';
 
       const allPosts = posts.map((post) => {
         if (post.image !== image) {
@@ -237,14 +238,16 @@ class Firebase {
       });
       
       this.db.doc('users/' + profileID).update({ posts: allPosts });
-      if (addUserNotification) {
-        await updateDoc(userRef, {
-          notifications: arrayUnion(username + ' has liked your post'),
-        });
-      } else {
-        await updateDoc(userRef, {
-          notifications: arrayRemove(username + ' has liked your post'),
-        });
+      if (postUsername !== username) {
+        if (addUserNotification) {
+          await updateDoc(userRef, {
+            notifications: arrayUnion(username + ' has liked your post'),
+          });
+        } else {
+          await updateDoc(userRef, {
+            notifications: arrayRemove(username + ' has liked your post'),
+          });
+        }
       }
     }
   }
@@ -259,7 +262,7 @@ class Firebase {
       user: this.auth.currentUser.displayName,
       text: text,
       commentDate: commentDate,
-      likes: []
+      likes: [],
     };
 
     const user = doc(this.db, 'users', profileID);
@@ -267,14 +270,17 @@ class Firebase {
 
     if (docSnap.exists()) {
       const posts = docSnap.data().posts || [];
+      const username = docSnap.data().username || '';
 
       const allPosts = posts.map((post) => 
         post.image === image ? {...post, comments: [...post.comments, comment]} : post
       );
       this.db.doc('users/' + profileID).update({ posts: allPosts });
-      await updateDoc(user, {
-        notifications: arrayUnion('Comment on your post by: ' + this.auth.currentUser.displayName),
-      });
+      if (username !== this.auth.currentUser.displayName) {
+        await updateDoc(user, {
+          notifications: arrayUnion('Comment on your post by: ' + this.auth.currentUser.displayName),
+        });
+      }
     }
   }
 

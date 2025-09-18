@@ -24,8 +24,4 @@
 - Clean up all the functions that have open/close to just invert the status of the value
 - Allow for the user to remove comments and posts
 
-- Refresh after searching
-- Comment doesn't work on home page for another user
-- Don't add notification when you comment or like your own post
-- Still duplicating data for home page (try to get this consistent)
-- "Friend request from: <Username>" and "Added friend: <Username>" should bring them to the users profile and remove the notification
+- Refresh after searching (go through the full test again and see where this error comes from)

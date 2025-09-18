@@ -27,36 +27,40 @@ const useStyles = makeStyles((theme) => ({
 
 export default function HomePage(props) {
   const classes = useStyles();
-    //Use location to make sure that the page re-renders when a user goes to a profile from an obscure way (searching up and typing manually)
-    const location = useLocation();
-    const [userProfile, setUserProfile] = useState(null);
-    const [friendsPosts, setFriendsPosts] = useState([]);
-    const [reloadPageData, setReloadPageData] = useState(false);
+  const location = useLocation();
+  const [userProfile, setUserProfile] = useState(null);
+  const [friendsPosts, setFriendsPosts] = useState([]);
+  const [reloadPageData, setReloadPageData] = useState(false);
     
   useEffect (() => {
     //User not logged in
     if (!firebase.getCurrentUsername()) {
       props.history.push('/login');
-      return null;
-    } else {
+      return;
+    }
+
+    const getData = async () => {
       try {
-        //Initially get the users profile with firebase
-        getUserProfile(firebase.getCurrentUsername())
-        .then((resultUser) => {
-          setUserProfile(resultUser);
-          setFriendsPosts(prevFriendsPosts => [...prevFriendsPosts, {uid: resultUser.uid, posts: resultUser.posts}]);
-          //Initially get the users friends profiles with firebase
-          for (const friend of resultUser.friends) {
-            getUserProfile(friend)
-            .then((friendProfile) => {
-              setFriendsPosts(prevFriendsPosts => [...prevFriendsPosts, {uid: friendProfile.uid, posts: friendProfile.posts}]);
-            });
-          }
-        });
+        const resultUser = await getUserProfile(firebase.getCurrentUsername());
+        setUserProfile(resultUser);
+
+        const postsArray = [{ uid: resultUser.uid, posts: resultUser.posts }];
+
+        const friendProfiles = await Promise.all(
+          resultUser.friends.map(friend => getUserProfile(friend))
+        );
+
+        for (const friendProfile of friendProfiles) {
+          postsArray.push({ uid: friendProfile.uid, posts: friendProfile.posts });
+        }
+
+        setFriendsPosts(postsArray);
       } catch (error) {
         console.error("Error fetching profile: ", error);
       }
-    }
+    };
+
+    getData();
   }, [props.history, location, reloadPageData]);
 
   const updatePageData = () => {
