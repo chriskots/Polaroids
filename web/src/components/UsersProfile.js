@@ -118,6 +118,10 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-between',
     height: 365,
   },
+  postCommentsDate: {
+    fontWeight: 'lighter',
+    fontSize: '0.8em',
+  },
   postCommentsGroup: {
     display: 'flex',
     flexDirection: 'column',
@@ -301,7 +305,10 @@ function UsersProfile(props) {
           </>
           :
           <div className={classes.viewPostCommentsMenu}>
-            Post Date: {viewPostItem.postDate}
+            {profile.username}
+            <div className={classes.postCommentsDate}>
+              (Post Date: {viewPostItem.postDate})
+            </div>
             <div className={classes.postCommentsGroup}>
               {viewPostItem.comments.map((comment) => (
                 <div className={classes.postComment} key={viewPostItem.comments.indexOf(comment)}>

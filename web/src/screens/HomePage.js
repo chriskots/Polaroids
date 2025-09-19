@@ -44,14 +44,14 @@ export default function HomePage(props) {
         const resultUser = await getUserProfile(firebase.getCurrentUsername());
         setUserProfile(resultUser);
 
-        const postsArray = [{ uid: resultUser.uid, posts: resultUser.posts }];
+        const postsArray = [{ uid: resultUser.uid, username: resultUser.username, posts: resultUser.posts }];
 
         const friendProfiles = await Promise.all(
           resultUser.friends.map(friend => getUserProfile(friend))
         );
 
         for (const friendProfile of friendProfiles) {
-          postsArray.push({ uid: friendProfile.uid, posts: friendProfile.posts });
+          postsArray.push({ uid: friendProfile.uid, username: friendProfile.username,  posts: friendProfile.posts });
         }
 
         setFriendsPosts(postsArray);

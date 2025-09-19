@@ -46,7 +46,12 @@ const useStyles = makeStyles((theme) => ({
     padding: '5px',
     borderRadius: '5px',
   },
+  friendListItemText: {
+    textAlign: 'center',
+  },
   friendListItemTextBold: {
+    textAlign: 'center',
+    color: 'blue',
     fontWeight: 'bold',
   },
   messagesDisplaySide: {
@@ -129,7 +134,7 @@ function Messages(props) {
               onClick={() => handleSelectUser(friend)}
             >
               <ListItemText
-                classes={{primary: profile.newMessages.includes(friend) ? classes.friendListItemTextBold : ''}}
+                classes={{primary: profile.newMessages.includes(friend) ? classes.friendListItemTextBold : classes.friendListItemText}}
                 primary={friend}
               />
             </ListItem>

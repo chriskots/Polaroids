@@ -25,3 +25,5 @@
 - Allow for the user to remove comments and posts
 
 - Refresh after searching (go through the full test again and see where this error comes from)
+
+- It's still duplicating some data on the homepage for some reason...

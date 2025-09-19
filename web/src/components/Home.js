@@ -80,6 +80,10 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-between',
     height: 365,
   },
+  postCommentsDate: {
+    fontWeight: 'lighter',
+    fontSize: '0.8em',
+  },
   postCommentsGroup: {
     display: 'flex',
     flexDirection: 'column',
@@ -136,6 +140,7 @@ function Home(props) {
       for(const post of friend.posts) {
         returnSortedPosts.push({
           ...post,
+          username: friend.username,
           uid: friend.uid,
         });
       }
@@ -143,13 +148,11 @@ function Home(props) {
 
     // Sorting the posts to be newest first
     return returnSortedPosts.sort((second, first) => {
-      // Split into [date, time]
       const [firstDatePart, firstHour, firstMinute] = first.postDate.split(":");
       // Date part
       const [firstYear, firstMonth, firstDay] = firstDatePart.split("-").map(Number);
       const firstDate = new Date(firstYear, firstMonth - 1, firstDay, firstHour, firstMinute);
       
-      // Split into [date, time]
       const [secondDatePart, secondHour, secondMinute] = second.postDate.split(":");
       // Date part
       const [secondYear, secondMonth, secondDay] = secondDatePart.split("-").map(Number);
@@ -202,7 +205,10 @@ function Home(props) {
             </>
             :
             <div className={classes.viewPostCommentsMenu}>
-              Post Date: {viewPostItem.postDate}
+              {viewPostItem.username}
+              <div className={classes.postCommentsDate}>
+                (Post Date: {viewPostItem.postDate})
+              </div>
               <div className={classes.postCommentsGroup}>
                 {viewPostItem.comments.map((comment) => (
                   <div className={classes.postComment} key={viewPostItem.comments.indexOf(comment)}>
@@ -314,7 +320,7 @@ function Home(props) {
   async function toggleLikeComment(commentIndex) {
     try {
       await firebase.toggleLikeComment(
-        profile.uid,
+        viewPostItem.uid,
         viewPostItem.image,
         commentIndex,
       );
