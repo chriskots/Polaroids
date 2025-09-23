@@ -1,11 +1,11 @@
 // {FuturePlans}
-- Make the taskbar close out of the dropdowns when selecting an item
 - I want to reload the page data but the problem is that viewPostItem changes on the server when getting the profile but not locally
 - I made the rotation of a new post lazy (I want to upload the actual rotated image for better usage but it's been tricky)
     - Currently I have a rotation value in the firebase storage tracking it for that post
 - Make a add back button for adding a friend if they have already sent you a friend request
+    - This would require me to pass the users profile as well as the page profile
 - Figure out a way to send notifications for when you post something
-- Make it so when you click on a notification it goes to that item (comment or new post)
+    - Make it so when you click on a notification it goes to that item (comment or new post)
 - For creating a new post make an animation to bring the polaroid closer to you and have fields to edit
     - Make the photo part have a UploadFileOutlinedIcon in the middle of it
     - Make the text have a EditOutlinedIcon beside it
@@ -16,7 +16,6 @@
     - Maybe also limit the text allowed in the create new post functionality (but I would prefer them to just make the post titles smaller visually)
     - Another option is making a caption for the polaroid on the back of the polaroid (allows the user to provide more text instead of relying on the title)
 - Maybe I can find a way to use redis cache to reduce calls to firebase and speed up the project
-- Resize the image that is uploaded so it doesn't take up too much space
 - View password in regular text (toggle)
 - Email confirmation when signing up
 - Change email signin to email or username signin
@@ -24,6 +23,5 @@
 - Clean up all the functions that have open/close to just invert the status of the value
 - Allow for the user to remove comments and posts
 
-- Refresh after searching (go through the full test again and see where this error comes from)
-
-- It's still duplicating some data on the homepage for some reason...
+- Fix the profile and homepage so the item does not have to be closed for a refresh to happen
+    - I did it for messages so it should be kinda similar (maybe a bit harder)

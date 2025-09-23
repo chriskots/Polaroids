@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import firebase from '../firebase';
 import {
   Box,
@@ -62,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
   },
   messagesDisplayContent: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'column-reverse',
     overflow: 'auto',
     height: '100%',
   },
@@ -107,6 +107,17 @@ function Messages(props) {
       }
     }
   };
+
+  useEffect(() => {
+    if (viewFriendUser) {
+      for (let user of profile.messages) {
+        if (user.friend === viewFriendUser.friend) {
+          setViewFriendUser(user);
+          setViewFriendMessages(user.messages);
+        }
+      }
+    }
+  }, [viewFriendUser, profile]);
 
   const handleSendMessage = () => {
     sendMessage();
@@ -153,7 +164,7 @@ function Messages(props) {
               </h3>
             </div>
             <List className={classes.messagesDisplayContent}>
-              {viewFriendMessages.map((message) => (
+              {[...viewFriendMessages].reverse().map((message) => (
                 <ListItem alignItems="flex-start">
                   <ListItemText
                     primary={
@@ -225,8 +236,6 @@ function Messages(props) {
 
       setMessage('');
       setMessageError(' ');
-      setViewFriendUser(null);
-      setViewFriendMessages([]);
       props.updatePageData();
     } catch(error) {
       console.log(error);

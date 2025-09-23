@@ -193,6 +193,7 @@ function TaskBar(props) {
   //Opening a profile when the user searches for someone
   const handleProfileSelect = (username) => {
     props.history.push('/@' + username);
+    handleCloseUsernameSearch();
   }
 
   //Logout
