@@ -1,17 +1,21 @@
 // {FuturePlans}
-- I want to reload the page data but the problem is that viewPostItem changes on the server when getting the profile but not locally
+Posts:
 - I made the rotation of a new post lazy (I want to upload the actual rotated image for better usage but it's been tricky)
     - Currently I have a rotation value in the firebase storage tracking it for that post
-- Make a add back button for adding a friend if they have already sent you a friend request
-    - This would require me to pass the users profile as well as the page profile
 - Figure out a way to send notifications for when you post something
     - Make it so when you click on a notification it goes to that item (comment or new post)
 - For creating a new post make an animation to bring the polaroid closer to you and have fields to edit
-    - Make the photo part have a UploadFileOutlinedIcon in the middle of it
-    - Make the text have a EditOutlinedIcon beside it
-    - Flip the polaroid around to edit text on the back
-- Tactile signature
+- Tactile signature for liking a post
+- Allow for the user to remove comments and posts
+- An option is to make the comments go to the end of the div when making a new post (but I can talk to Emily to see what she thinks)
+- Right now on the homepage it refreshes the background when in the viewPostItem
+    - I think this is fine and I don't think theres any way to change this because we have to store the users and friends profile posts together
+
+Other:
+- Make a add back button for adding a friend if they have already sent you a friend request
+    - This would require me to pass the users profile as well as the page profile
 - Maybe change the dates to be 9/8/2025: 11:42 format
+    - Going to be a bit hard to change all the times I use date
 - Dynamically change the font sizes when the text reaches outside of the div for the h2 post titles
     - Maybe also limit the text allowed in the create new post functionality (but I would prefer them to just make the post titles smaller visually)
     - Another option is making a caption for the polaroid on the back of the polaroid (allows the user to provide more text instead of relying on the title)
@@ -21,8 +25,3 @@
 - Change email signin to email or username signin
 - Darkmode
 - Clean up all the functions that have open/close to just invert the status of the value
-- Allow for the user to remove comments and posts
-- An option is to make the comments go to the end of the div when making a new post (but I can talk to Emily to see what she thinks)
-
-- Right now on the homepage it refreshes the background when in the viewPostItem
-    - I think this is fine and I don't think theres any way to change this because we have to store the users and friends profile posts together

@@ -197,77 +197,77 @@ function Home(props) {
   };
 
   const handleViewPostMenuDialog = () => {
-      return (
-        viewPostItem ? 
-        <Dialog open={viewPostMenu} onClose={handleViewPostMenu}>
-          <div className={classes.polaroidBox}>
-            {!viewPostComments ?
-            <>
-              <div className={`${classes.innerPolaroidBox} ${classes.polaroidBoxSelectable}`} onDoubleClick={() => handleLikePost()}>
-                <img className={classes.images} style={{transform: `rotate(${viewPostItem.rotation}deg)`}} src={viewPostItem.image} alt={ERROR_MESSAGE} loading='lazy'/>
-              </div>
-              <div className={classes.postTitle}>
-                <h2>{viewPostItem.title}</h2>
-                <Badge className={classes.postTitleLikes} badgeContent={viewPostItem.likes ? viewPostItem.likes.length : 0} color="secondary">
-                  {viewPostItem.likes ? viewPostItem.likes.includes(firebase.getCurrentUsername()) ? <Favorite /> : <FavoriteBorder /> : <FavoriteBorder />}
-                </Badge>
-              </div>
-            </>
-            :
-            <div className={classes.viewPostCommentsMenu}>
-              {viewPostItem.username}
-              <div className={classes.postCommentsDate}>
-                (Post Date: {viewPostItem.postDate})
-              </div>
-              <div className={classes.postCommentsGroup}>
-                {viewPostItem.comments.map((comment) => (
-                  <div className={classes.postComment} key={viewPostItem.comments.indexOf(comment)}>
-                    {/* Maybe make the comment user selectable to take them to the users profile */}
-                    {/* className={classes.polaroidBoxSelectable} onClick={() => handleFriendSelect(comment.user)} */}
-                    <div className={classes.commentUsername}>{comment.user}</div>
-                    <div className={classes.commentContent}>
-                      {comment.text}
-                      <IconButton aria-label="like comment" color="inherit" onClick={() => handleLikeComment(viewPostItem.comments.indexOf(comment))}>
-                        <Badge badgeContent={comment.likes.length} color="secondary">
-                          {comment.likes.includes(firebase.getCurrentUsername()) ? <Favorite /> : <FavoriteBorder />}
-                        </Badge>
-                      </IconButton>
-                    </div>
-                    <div className={`${classes.dateSize} ${classes.commentUsername}`}>{comment.commentDate}</div>
-                  </div>
-                ))}
-              </div>
-  
-              <div>
-                <ThemeProvider theme={textFieldTheme}>
-                  <TextField
-                    id="comment"
-                    placeholder="Comment"
-                    value={postMakeComment}
-                    onChange={(event) => {
-                      setPostMakeComment(event.target.value);
-                    }}
-                    error={postMakeCommentError !== ' ' ? true : false}
-                    helperText={postMakeCommentError}
-                  />
-                </ThemeProvider>
-                <IconButton aria-label="comment" color="inherit" onClick={handleMakeComment}>
-                  <Badge color="secondary">
-                    <ChatOutlined />
-                  </Badge>
-                </IconButton>
-              </div>
+    return (
+      viewPostItem ? 
+      <Dialog open={viewPostMenu} onClose={handleViewPostMenu}>
+        <div className={classes.polaroidBox}>
+          {!viewPostComments ?
+          <>
+            <div className={`${classes.innerPolaroidBox} ${classes.polaroidBoxSelectable}`} onDoubleClick={() => handleLikePost()}>
+              <img className={classes.images} style={{transform: `rotate(${viewPostItem.rotation}deg)`}} src={viewPostItem.image} alt={ERROR_MESSAGE} loading='lazy'/>
             </div>
-            }
+            <div className={classes.postTitle}>
+              <h2>{viewPostItem.title}</h2>
+              <Badge className={classes.postTitleLikes} badgeContent={viewPostItem.likes ? viewPostItem.likes.length : 0} color="secondary">
+                {viewPostItem.likes ? viewPostItem.likes.includes(firebase.getCurrentUsername()) ? <Favorite /> : <FavoriteBorder /> : <FavoriteBorder />}
+              </Badge>
+            </div>
+          </>
+          :
+          <div className={classes.viewPostCommentsMenu}>
+            {viewPostItem.username}
+            <div className={classes.postCommentsDate}>
+              (Post Date: {viewPostItem.postDate})
+            </div>
+            <div className={classes.postCommentsGroup}>
+              {viewPostItem.comments.map((comment) => (
+                <div className={classes.postComment} key={viewPostItem.comments.indexOf(comment)}>
+                  {/* Maybe make the comment user selectable to take them to the users profile */}
+                  {/* className={classes.polaroidBoxSelectable} onClick={() => handleFriendSelect(comment.user)} */}
+                  <div className={classes.commentUsername}>{comment.user}</div>
+                  <div className={classes.commentContent}>
+                    {comment.text}
+                    <IconButton aria-label="like comment" color="inherit" onClick={() => handleLikeComment(viewPostItem.comments.indexOf(comment))}>
+                      <Badge badgeContent={comment.likes.length} color="secondary">
+                        {comment.likes.includes(firebase.getCurrentUsername()) ? <Favorite /> : <FavoriteBorder />}
+                      </Badge>
+                    </IconButton>
+                  </div>
+                  <div className={`${classes.dateSize} ${classes.commentUsername}`}>{comment.commentDate}</div>
+                </div>
+              ))}
+            </div>
+
+            <div>
+              <ThemeProvider theme={textFieldTheme}>
+                <TextField
+                  id="comment"
+                  placeholder="Comment"
+                  value={postMakeComment}
+                  onChange={(event) => {
+                    setPostMakeComment(event.target.value);
+                  }}
+                  error={postMakeCommentError !== ' ' ? true : false}
+                  helperText={postMakeCommentError}
+                />
+              </ThemeProvider>
+              <IconButton aria-label="comment" color="inherit" onClick={handleMakeComment}>
+                <Badge color="secondary">
+                  <ChatOutlined />
+                </Badge>
+              </IconButton>
+            </div>
           </div>
-          <Button onClick={handleViewComments}>
-            Flip
-          </Button>
-        </Dialog>
-        :
-        <></>
-      );
-    };
+          }
+        </div>
+        <Button onClick={handleViewComments}>
+          Flip
+        </Button>
+      </Dialog>
+      :
+      <></>
+    );
+  };
 
   return (
     <div className={classes.outterBox}>
