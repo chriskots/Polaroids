@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import firebase from '../firebase';
 import {
   ThemeProvider,
@@ -189,6 +189,16 @@ function UsersProfile(props) {
   const [postMakeCommentError, setPostMakeCommentError] = useState(' ');
   // The alt='Error' could be a placeholder temporary image instead
   const ERROR_MESSAGE = 'Error';
+
+  useEffect(() => {
+    if (viewPostItem) {
+      for (let post of profile.posts) {
+        if (post.image === viewPostItem.image) {
+          setViewPostItem(post);
+        }
+      }
+    }
+  }, [viewPostItem, profile]);
 
   const handleChangeProfilePictureMenu = () => {
     setChangeProfilePictureMenu(!changeProfilePictureMenu);
@@ -606,7 +616,6 @@ function UsersProfile(props) {
         viewPostItem.image,
       );
 
-      setViewPostMenu(!viewPostMenu);
       props.updatePageData();
     } catch(error) {} 
   }
@@ -646,9 +655,6 @@ function UsersProfile(props) {
 
       setPostMakeComment('');
       setPostMakeCommentError(' ');
-      // Close the menu to reload the data
-      setViewPostMenu(!viewPostMenu);
-      // {futurePlans} I want to reload the page data but the problem is that viewPostItem changes on the server when getting the profile but not locally
       props.updatePageData();
     } catch(error) {
       setPostMakeCommentError('Error');
@@ -663,7 +669,6 @@ function UsersProfile(props) {
         commentIndex,
       );
       
-      setViewPostMenu(!viewPostMenu);
       props.updatePageData();
     } catch(error) {}
   }

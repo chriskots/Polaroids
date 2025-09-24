@@ -22,6 +22,7 @@
 - Darkmode
 - Clean up all the functions that have open/close to just invert the status of the value
 - Allow for the user to remove comments and posts
+- An option is to make the comments go to the end of the div when making a new post (but I can talk to Emily to see what she thinks)
 
-- Fix the profile and homepage so the item does not have to be closed for a refresh to happen
-    - I did it for messages so it should be kinda similar (maybe a bit harder)
+- Right now on the homepage it refreshes the background when in the viewPostItem
+    - I think this is fine and I don't think theres any way to change this because we have to store the users and friends profile posts together

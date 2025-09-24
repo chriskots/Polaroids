@@ -238,7 +238,6 @@ function Messages(props) {
       setMessageError(' ');
       props.updatePageData();
     } catch(error) {
-      console.log(error);
       setMessageError('Error');
     }
   }
