@@ -156,7 +156,7 @@ function Signin(props) {
         <div className={classes.spacing}>
           <ThemeProvider theme={textFieldTheme}>
             <TextField
-              id="login email"
+              id="login-email"
               label="Email"
               value={emailInput}
               onChange={(event) => {
@@ -169,7 +169,7 @@ function Signin(props) {
         <div className={classes.spacing}>
           <ThemeProvider theme={textFieldTheme}>
             <TextField
-              id="login password"
+              id="login-password"
               label="Password"
               type="password"
               value={passwordInput}
@@ -197,7 +197,7 @@ function Signin(props) {
               </DialogContentText>
               <ThemeProvider theme={textFieldTheme}>
                 <TextField
-                  id="forgot password email"
+                  id="forgot-password-email"
                   label="Email"
                   fullWidth
                   value={emailForgotPassword}
@@ -239,7 +239,7 @@ function Signin(props) {
               <div className={classes.spacing}>
                 <ThemeProvider theme={textFieldTheme}>
                   <TextField
-                    id="create new account email"
+                    id="create-new-account-email"
                     label="Email"
                     fullWidth
                     value={emailCreateNewAccount}
@@ -255,7 +255,7 @@ function Signin(props) {
               <div className={classes.spacing}>
                 <ThemeProvider theme={textFieldTheme}>
                   <TextField
-                    id="create new account username"
+                    id="create-new-account-username"
                     label="Username"
                     fullWidth
                     value={usernameCreateNewAccount}
@@ -272,7 +272,7 @@ function Signin(props) {
               <div className={classes.passwordSpacing}>
                 <ThemeProvider theme={textFieldTheme}>
                   <TextField
-                    id="create new account password"
+                    id="create-new-account-password"
                     label="Password"
                     type="password"
                     value={passwordCreateNewAccount}
@@ -294,7 +294,7 @@ function Signin(props) {
                 </ThemeProvider>
                 <ThemeProvider theme={textFieldTheme}>
                   <TextField
-                    id="create new account confirm password"
+                    id="create-new-account-confirm-password"
                     label="Confirm Password"
                     type="password"
                     value={confirmPasswordCreateNewAccount}
